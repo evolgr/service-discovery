@@ -1,0 +1,31 @@
+{
+  "title": "Chat Message",
+  "description": "Definition of a Chat message.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The user name.",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_]+$"
+    },
+    "message": {
+      "description": "Extra information providing further insight about the fault.",
+      "type": "string"
+    },
+    "timestamp": {
+      "description": "The timestamp of when the fault indication was created, according to ISO8601 format: YYYY-MM-DDTHH:MM:SS.mmmmmmz (z is the relative time zone offset in hours and minutes to UTC in the format +hh:mm or -hh:mm. If UTC is used z will be 'Z' instead of '+00:00').",
+      "type": "string",
+      "format": "date-time"
+    },
+    "recipients": {
+      "description": "Message recipients",
+      "type": "object"
+    }
+  },
+  "required": [
+    "name",
+    "message",
+    "timestamp"
+  ],
+  "additionalProperties": true
+}
