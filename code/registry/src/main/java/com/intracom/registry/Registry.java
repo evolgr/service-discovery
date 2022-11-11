@@ -1,4 +1,4 @@
-package com.intracom.server;
+package com.intracom.registry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
