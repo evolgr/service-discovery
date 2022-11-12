@@ -57,7 +57,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<sourceDirectory>${basedir}/model/schema</sourceDirectory>
+							<sourceDirectory>${basedir}/schema</sourceDirectory>
 							<targetPackage>com.intracom.model</targetPackage>
 						</configuration>
 					</execution>
@@ -109,6 +109,23 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.reactivex.rxjava2</groupId>
+			<artifactId>rxjava</artifactId>
+			<version>2.2.21</version>
+		</dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-rx-java2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-web-client</artifactId>
 		</dependency>
 	</dependencies>
 
