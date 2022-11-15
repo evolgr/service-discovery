@@ -176,6 +176,11 @@ public class WebServer
                    .doOnComplete(() -> this.terminating.set(false));
     }
 
+    public int actualPort()
+    {
+        return this.httpServer.actualPort();
+    }
+
     public URI baseUri()
     {
         return this.baseUri;

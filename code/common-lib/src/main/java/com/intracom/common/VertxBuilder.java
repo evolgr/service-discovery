@@ -4,7 +4,7 @@ import io.vertx.core.VertxOptions;
 import io.vertx.reactivex.core.Vertx;
 
 /**
- * 
+ * Create vertx instance
  */
 public class VertxBuilder
 {

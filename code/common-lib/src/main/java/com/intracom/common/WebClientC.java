@@ -9,41 +9,34 @@ import io.reactivex.schedulers.Schedulers;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
 
-
 public class WebClientC
 {
     private static final Logger log = LoggerFactory.getLogger(WebClientC.class);
     private final Single<WebClient> webClient;
-    private final String clienthostname;
-    
-    public static WebClientCBuilder builder()
-    {
-        return new WebClientCBuilder();
-    }
-    
-    public WebClientC(Vertx vertx, WebClientCBuilder builder)
+
+    public WebClientC(Vertx vertx,
+                      WebClientCBuilder builder)
     {
         final var init = Completable.complete();
-        this.webClient = init.andThen(Single.fromCallable(() -> WebClient.create(vertx, builder.options))).cache();   
-        this.clienthostname = builder.clienthostname;
-	}
-    
+        this.webClient = init.andThen(Single.fromCallable(() -> WebClient.create(vertx, builder.options))).cache();
+    }
+
+    public Single<WebClient> get()
+    {
+        return this.webClient;
+    }
     public Completable close()
     {
-        final var finalize = Completable.complete();
-        return finalize.andThen(this.webClient.flatMapCompletable(WebClientC::closeWebClient)).cache();
-    }    
-    
+        return Completable.complete() //
+                          .andThen(this.webClient.flatMapCompletable(WebClientC::closeWebClient)) //
+                          .cache();
+    }
+
     private static Completable closeWebClient(WebClient wc)
     {
         return Completable.fromAction(wc::close) //
-                          .subscribeOn(Schedulers.io())
-                          .doOnError(err -> log.warn("Failed to close WebClient", err))
+                          .subscribeOn(Schedulers.io()) //
+                          .doOnError(err -> log.warn("Failed to close WebClient", err)) //
                           .onErrorComplete();
-    }
-     
-    public String getHostName()
-    {
-        return this.clienthostname;
     }
 }

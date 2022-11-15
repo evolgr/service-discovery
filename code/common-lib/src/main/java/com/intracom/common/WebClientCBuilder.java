@@ -23,7 +23,12 @@ import io.vertx.reactivex.core.Vertx;
 public class WebClientCBuilder
 {
     final WebClientOptions options = new WebClientOptions().setProtocolVersion(HttpVersion.HTTP_2);
-    String clienthostname;
+    String hostname;
+
+    public WebClientCBuilder()
+    {
+        // empty constructor
+    }
 
     public WebClientCBuilder withOptions(Consumer<WebClientOptions> options)
     {
@@ -35,12 +40,6 @@ public class WebClientCBuilder
         {
             throw new IllegalArgumentException("Failed to set WebClient otpions", e);
         }
-        return this;
-    }
-
-    public WebClientCBuilder withHostName(String hostname)
-    {
-        this.clienthostname = hostname;
         return this;
     }
 
