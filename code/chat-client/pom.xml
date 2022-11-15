@@ -12,13 +12,13 @@
 	</parent>
 
 	<groupId>com.intracom</groupId>
-	<artifactId>registry</artifactId>
+	<artifactId>chat-client</artifactId>
 
 	<properties>
 		<!-- Redefine to gain access to parent POM dir -->
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<!-- The main class in produced jar,used by shade plugin -->
-		<mainClass>com.intracom.registry</mainClass>
+		<mainClass>com.intracom.client</mainClass>
 		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 

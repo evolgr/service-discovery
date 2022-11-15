@@ -9,7 +9,7 @@
 	</parent>
 
 	<groupId>com.intracom</groupId>
-	<artifactId>common</artifactId>
+	<artifactId>common-lib</artifactId>
 	<version>1.0.0</version>
 	<name>Service Discovery Common Library</name>
 	<description>Library for the handling of common required by Service Discovery services</description>

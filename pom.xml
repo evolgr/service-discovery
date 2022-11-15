@@ -10,11 +10,11 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>code/common</module>
-		<module>code/client</module>
-		<module>code/handler</module>
-		<module>code/registry</module>
-		<module>code/server</module>
+		<module>code/common-lib</module>
+		<module>code/chat-client</module>
+		<module>code/sd-handler</module>
+		<module>code/sd-registry</module>
+		<module>code/chat-server</module>
 	</modules>
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>

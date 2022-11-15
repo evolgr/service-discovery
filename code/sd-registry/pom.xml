@@ -12,13 +12,13 @@
 	</parent>
 
 	<groupId>com.intracom</groupId>
-	<artifactId>server</artifactId>
+	<artifactId>sd-registry</artifactId>
 
 	<properties>
 		<!-- Redefine to gain access to parent POM dir -->
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<!-- The main class in produced jar,used by shade plugin -->
-		<mainClass>com.intracom.server</mainClass>
+		<mainClass>com.intracom.registry</mainClass>
 		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
