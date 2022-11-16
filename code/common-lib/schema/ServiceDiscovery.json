@@ -1,0 +1,95 @@
+{
+	"title": "Chat Function",
+	"description": "Definition of chat function schema model.",
+	"definitions": {
+		"Recipient": {
+			"$id": "#Recipient",
+			"description": "User name",
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "The user name.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"name"
+			],
+			"additionalProperties": true
+		},
+		"Recipients": {
+			"$id": "#Recipients",
+			"description": "List of user names",
+			"type": "array",
+			"uniqueItems": true,
+			"minItems": 1,
+			"items": {
+				"$ref": "#definitions/Recipient"
+			}
+		},
+		"Entry": {
+			"$id": "#Entry",
+			"description": "Registered service of specific server function",
+			"type": "object",
+			"properties": {
+				"host": {
+					"description": "The host name of client web server.",
+					"type": "string"
+				},
+				"port": {
+					"description": "The port number of client web server.",
+					"type": "number",
+					"minimum": 0,
+					"maximum": 65536,
+					"exclusiveMaximum": true
+				},
+				"message": {
+					"description": "The message to set, min length 1 char and max length 160 chars ",
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 160
+				},
+				"timestamp": {
+					"description": "The timestamp of when the fault indication was created, according to ISO8601 format: YYYY-MM-DDTHH:MM:SS.mmmmmmz (z is the relative time zone offset in hours and minutes to UTC in the format +hh:mm or -hh:mm. If UTC is used z will be 'Z' instead of '+00:00').",
+					"type": "string",
+					"format": "date-time"
+				},
+				"recipients": {
+					"description": "User names of all recipients",
+					"$ref": "#definitions/Recipients"
+				}
+			},
+			"required": [
+				"host",
+				"port",
+				"timestamp"
+			],
+			"additionalProperties": true
+		},
+		"Entries": {
+			"$id": "#Entry",
+			"description": "Registered services of specific server function",
+			"type": "array",
+			"uniqueItems": true,
+			"minItems": 1,
+			"items": {
+				"$ref": "#definitions/Entry"
+			}
+		}
+	},
+	"type": "object",
+	"properties": {
+		"function": {
+			"description": "The specific server function to be used by incoming service client.",
+			"type": "string"
+		},
+		"data": {
+			"description": "Function data.",
+			"$ref": "#definitions/Entries"
+		}
+	},
+	"required": [
+		"data"
+	],
+	"additionalProperties": true
+}

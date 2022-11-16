@@ -25,7 +25,9 @@ hs_err_pid*
 # extras
 .classpath
 .project
+.settings/
 dependency-reduced-pom.xml
 target/
+test-output/
 
-code/common/src/main/java/com/intracom/model/
+code/common-lib/src/main/java/com/intracom/model/
