@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.utilities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;

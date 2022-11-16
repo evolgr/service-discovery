@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.web;
 
 import io.vertx.core.VertxOptions;
 import io.vertx.reactivex.core.Vertx;

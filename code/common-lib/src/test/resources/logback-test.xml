@@ -4,7 +4,7 @@
             <pattern>%date{HH:mm:ss.SSS}: %-15.15thread|%15.15logger{30}:%-4L|%-30.30method|%msg%n</pattern>
         </encoder>
     </appender>
-    <root level="info">
+    <root level="off">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

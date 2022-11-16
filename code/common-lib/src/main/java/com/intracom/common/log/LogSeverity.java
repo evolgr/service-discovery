@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

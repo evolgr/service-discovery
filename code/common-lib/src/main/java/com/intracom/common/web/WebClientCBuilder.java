@@ -13,7 +13,7 @@
  *     Author: zpalele
  */
 
-package com.intracom.common;
+package com.intracom.common.web;
 
 import io.reactivex.functions.Consumer;
 import io.vertx.core.http.HttpVersion;

@@ -13,7 +13,7 @@
  *     Author: zpalele
  */
 
-package com.intracom.common;
+package com.intracom.common.web;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -30,14 +30,14 @@ public class WebServerBuilder
     boolean httpTracing = false;
     boolean listenAll = false;
 
-    WebServerBuilder()
+    public WebServerBuilder()
     {
         this.options = new HttpServerOptions();
         this.host = options.getHost();
         this.port = options.getPort();
     }
 
-    WebServerBuilder(WebServerBuilder builder)
+    public WebServerBuilder(WebServerBuilder builder)
     {
         this.options = new HttpServerOptions(builder.options);
         this.host = builder.host;

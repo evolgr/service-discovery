@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.file;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;

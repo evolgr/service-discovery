@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.file;
 
 import java.util.Map;
 import java.util.Objects;

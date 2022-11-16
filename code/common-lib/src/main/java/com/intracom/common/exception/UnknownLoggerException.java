@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.exception;
 
 /**
 * Exception to indicate that there was a failure to extract logger with

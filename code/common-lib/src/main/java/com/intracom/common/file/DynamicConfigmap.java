@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.file;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +10,10 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intracom.common.ConfigmapWatch.ConfigmapFile;
+import com.intracom.common.exception.UnknownLoggerException;
+import com.intracom.common.file.ConfigmapWatch.ConfigmapFile;
+import com.intracom.common.log.LogSeverity;
+import com.intracom.common.utilities.Jackson;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;

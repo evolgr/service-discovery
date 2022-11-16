@@ -1,4 +1,4 @@
-package com.intracom.common;
+package com.intracom.common.web;
 
 import java.net.URI;
 import java.net.URL;
