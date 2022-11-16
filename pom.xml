@@ -207,7 +207,7 @@
 			<!-- Internal dependencies -->
 			<dependency>
 				<groupId>com.intracom</groupId>
-				<artifactId>common</artifactId>
+				<artifactId>common-lib</artifactId>
 				<version>1.0.0</version>
 			</dependency>
 		</dependencies>
