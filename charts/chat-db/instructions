@@ -1,0 +1,150 @@
+Introduction
+User Bitnami postgresql for best seminars
+https://bitnami.com/stack/postgresql/helm
+
+default instructions:
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install chat-db bitnami/postgresql
+
+get postgress password:
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace 5g-bsf-ekoteva chat-db-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+
+connect to your database:
+kubectl run chat-db-postgresql-client --rm --tty -i --restart='Never' --namespace 5g-bsf-ekoteva --image docker.io/bitnami/postgresql:14.5.0-debian-11-r14 --env="PGPASSWORD=$POSTGRES_PASSWORD" --command -- psql --host chat-db-postgresql -U postgres -d postgres -p 5432
+
+external access actions:
+kubectl port-forward --namespace 5g-bsf-ekoteva svc/chat-db-postgresql 5432:5432 &
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+
+best instructions:
+
+### HELM INSTALL ###
+
+$ helm install chat-db bitnami/postgresql -n 5g-bsf-ekoteva -f values.yaml
+NAME: chat-db
+LAST DEPLOYED: Thu Nov 17 19:03:52 2022
+NAMESPACE: 5g-bsf-ekoteva
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: postgresql
+CHART VERSION: 11.9.1
+APP VERSION: 14.5.0
+
+** Please be patient while the chart is being deployed **
+
+PostgreSQL can be accessed via port 8432 on the following DNS names from within your cluster:
+
+    chat-db-postgresql.5g-bsf-ekoteva.svc.cluster.local - Read/Write connection
+
+To get the password for "postgres" run:
+
+    export POSTGRES_ADMIN_PASSWORD=$(kubectl get secret --namespace 5g-bsf-ekoteva chat-db-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+
+To get the password for "best" run:
+
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace 5g-bsf-ekoteva chat-db-postgresql -o jsonpath="{.data.password}" | base64 -d)
+
+To connect to your database run the following command:
+
+    kubectl run chat-db-postgresql-client --rm --tty -i --restart='Never' --namespace 5g-bsf-ekoteva --image armdockerhub.rnd.ericsson.se/bitnami/postgresql:14.5.0-debian-11-r14 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host chat-db-postgresql -U best -d best -p 8432
+
+    > NOTE: If you access the container using bash, make sure that you execute "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash" in order to avoid the error "psql: local user with ID 1001} does not exist"
+
+To connect to your database from outside the cluster execute the following commands:
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace 5g-bsf-ekoteva -w chat-db-postgresql'
+
+    export SERVICE_IP=$(kubectl get svc --namespace 5g-bsf-ekoteva chat-db-postgresql --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host $SERVICE_IP --port 8432 -U best -d best
+
+### HELM UNINSTALL ###
+
+$ helm uninstall chat-db -n 5g-bsf-ekoteva
+release "chat-db" uninstalled
+
+### POSTGRESQL COMMANDS ###
+### more examples: https://postgrescheatsheet.com/ ###
+
+### CONNECT ###
+I have no name!@chat-db-postgresql-0:/$ psql --host 127.0.0.1 -U best -d best -p 5432
+Password for user best: best
+psql (14.5)
+Type "help" for help.
+
+### LIST TABLES ###
+best=> \dt
+       List of relations
+ Schema | Name | Type  | Owner 
+--------+------+-------+-------
+ public | chat | table | best
+(1 row)
+
+### SHOW TABLE ###
+best=> \d chat
+                                             Table "public.chat"
+      Column       |          Type          | Collation | Nullable |                 Default                  
+-------------------+------------------------+-----------+----------+------------------------------------------
+ message_id        | integer                |           | not null | nextval('chat_message_id_seq'::regclass)
+ message_user      | character varying(50)  |           | not null | 
+ message_message   | character varying(150) |           | not null | 
+ message_recipient | boolean                |           | not null | 
+ message_owner     | character varying(50)  |           |          | 
+Indexes:
+    "chat_pkey" PRIMARY KEY, btree (message_id)
+
+### INSERT QUERY ###
+### example: message by vaggelis to eleftheria ###
+best=> INSERT INTO chat (message_user, message_message, message_recipient, message_owner)
+VALUES ('vaggelis', 'my crazy message', FALSE, NULL),
+('eleftheria', 'my crazy message', TRUE, 'vaggelis');
+INSERT 0 2
+
+### SELECT QUERY ###
+best=> select * from chat;
+ message_id | message_user | message_message  | message_recipient | message_owner 
+------------+--------------+------------------+-------------------+---------------
+          1 | vaggelis     | my crazy message | f                 | 
+          2 | eleftheria   | my crazy message | t                 | vaggelis
+(2 rows)
+
+### CREATE TABLE ###
+### created during bootstrap of postgresql ###
+CREATE TABLE IF NOT EXISTS chat (
+  message_id SERIAL PRIMARY KEY, -- AUTO_INCREMENT integer, as primary key
+  message_user VARCHAR(50) NOT NULL,
+  message_message VARCHAR(150) NOT NULL,
+  message_recipient BOOLEAN NOT NULL,
+  message_owner VARCHAR(50));
+
+### External access ###
+### example use load balancer ip/port (default 8432) ###
+$ psql --host 10.158.166.125  -U postgres -d postgres -p 8432
+psql: SCRAM authentication requires libpq version 10 or above
+$ module load postgresql/13.0
+seroiuvd04613:~ 
+$ psql --version
+psql (PostgreSQL) 13.0
+seroiuvd04613:~ 
+$ psql --host 10.158.166.125  -U postgres -d postgres -p 8432
+Password for user postgres: 
+seroiuvd04613:~ 
+$ psql --host 10.158.166.125  -U best -d best -p 8432
+Password for user best: 
+psql (13.0, server 14.5)
+WARNING: psql major version 13, server major version 14.
+         Some psql features might not work.
+Type "help" for help.
+
+best=> select * from chat;
+ message_id | message_user | message_message  | message_recipient | message_owner 
+------------+--------------+------------------+-------------------+---------------
+          1 | vaggelis     | my crazy message | f                 | 
+          2 | eleftheria   | my crazy message | t                 | vaggelis
+(2 rows)
+
+
+

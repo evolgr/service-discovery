@@ -1,0 +1,43 @@
+global:
+  imageRegistry: "armdockerhub.rnd.ericsson.se"
+  imagePullSecrets: []
+  storageClass: ""
+  postgresql:
+    auth:
+      postgresPassword: postgres
+      username: best
+      password: best
+      database: best
+      existingSecret: ""
+      secretKeys:
+        adminPasswordKey: ""
+        userPasswordKey: ""
+        replicationPasswordKey: ""
+    service:
+      ports:
+        postgresql: "8432"
+
+primary:
+  initdb:
+    scripts:
+      00_init_chat_table.sql: |
+        CREATE TABLE IF NOT EXISTS chat (
+          message_id SERIAL PRIMARY KEY, -- AUTO_INCREMENT integer, as primary key
+          message_user VARCHAR(50) NOT NULL,
+          message_message VARCHAR(150) NOT NULL,
+          message_recipient BOOLEAN NOT NULL,
+          message_owner VARCHAR(50));
+    user: best
+    password: best
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  service:
+    type: LoadBalancer
+  persistence:
+    enabled: true
+    storageClass: "network-block"
+
+volumePermissions:
+  enabled: true

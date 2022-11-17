@@ -43,6 +43,10 @@
 					"maximum": 65536,
 					"exclusiveMaximum": true
 				},
+				"user": {
+					"description": "The user name of the message author.",
+					"type": "string"
+				},
 				"message": {
 					"description": "The message to set, min length 1 char and max length 160 chars ",
 					"type": "string",
