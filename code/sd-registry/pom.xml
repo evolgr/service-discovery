@@ -54,7 +54,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.intracom</groupId>
-			<artifactId>common</artifactId>
+			<artifactId>common-lib</artifactId>
 		</dependency>
 	</dependencies>
 </project>

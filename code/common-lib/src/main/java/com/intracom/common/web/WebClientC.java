@@ -13,12 +13,19 @@ public class WebClientC
 {
     private static final Logger log = LoggerFactory.getLogger(WebClientC.class);
     private final Single<WebClient> webClient;
+    private Vertx vertx;
 
     public WebClientC(Vertx vertx,
                       WebClientCBuilder builder)
     {
+        this.vertx = vertx;
         final var init = Completable.complete();
         this.webClient = init.andThen(Single.fromCallable(() -> WebClient.create(vertx, builder.options))).cache();
+    }
+    
+    public static WebClientCBuilder builder()
+    {
+        return new WebClientCBuilder();
     }
 
     public Single<WebClient> get()
