@@ -6,7 +6,7 @@
 				%-15.15thread|%15.15logger{30}:%-4L|%-30.30method|%msg%n</pattern>
 		</encoder>
 	</appender>
-	<root level="off">
+	<root level="debug">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>

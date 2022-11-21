@@ -146,5 +146,13 @@ best=> select * from chat;
           2 | eleftheria   | my crazy message | t                 | vaggelis
 (2 rows)
 
+### Identify configuration file location ###
+$ psql --host 10.158.166.125  -U postgres -d postgres -p 8432 -c 'SHOW config_file'
+Password for user postgres: 
+                 config_file                  
+----------------------------------------------
+ /opt/bitnami/postgresql/conf/postgresql.conf
+(1 row)
+
 
 

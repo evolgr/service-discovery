@@ -1,0 +1,36 @@
+{
+	"title": "Message",
+	"description": "Definition of a message in chat system.",
+	"type": "object",
+	"properties": {
+		"message_id": {
+			"description": "An identifier uniquely identifying messages.",
+			"type": "integer"
+		},
+		"message_user": {
+			"description": "The message owner.",
+			"type": "string"
+		},
+		"message_message": {
+			"description": "The message data, min length 1 char and max length 160 chars ",
+			"type": "string",
+			"minLength": 1,
+			"maxLength": 160
+		},
+		"message_recipient": {
+			"description": "The indication if current user is recipient of message author.",
+			"type": "boolean"
+		},
+		"message_owner": {
+			"description": "The real owner if current user is not, NULL otherwise.",
+			"type": "string"
+		}
+	},
+	"required": [
+		"message_user",
+		"message_message",
+		"message_recipient",
+		"message_owner"
+	],
+	"additionalProperties": false
+}

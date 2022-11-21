@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.intracom</groupId>
 	<artifactId>service-discovery</artifactId>
@@ -76,12 +73,12 @@
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-core</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-micrometer-metrics</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>io.micrometer</groupId>
@@ -100,33 +97,38 @@
 			</dependency>
 			<dependency>
 				<groupId>io.vertx</groupId>
+				<artifactId>vertx-service-proxy</artifactId>
+				<version>3.7.1</version>
+			</dependency>
+			<dependency>
+				<groupId>io.vertx</groupId>
 				<artifactId>vertx-redis-client</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-rx-java2</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-unit</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-web</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-web-api-contract</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-web-client</artifactId>
-				<version>4.2.4</version>
+				<version>3.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
@@ -183,6 +185,16 @@
 				<artifactId>commons-io</artifactId>
 				<version>2.11.0</version>
 			</dependency>
+			<dependency>
+				<groupId>com.ongres.scram</groupId>
+				<artifactId>common</artifactId>
+				<version>2.1</version>
+			</dependency>
+			<dependency>
+				<groupId>io.reactiverse</groupId>
+				<artifactId>reactive-pg-client</artifactId>
+				<version>0.11.4</version>
+			</dependency>
 
 			<!-- External test dependencies -->
 			<dependency>
@@ -197,17 +209,11 @@
 				<version>1.17.3</version>
 				<scope>test</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>cassandra</artifactId>
-				<version>1.17.3</version>
-				<scope>test</scope>
-			</dependency>
 
 			<!-- Internal dependencies -->
 			<dependency>
 				<groupId>com.intracom</groupId>
-				<artifactId>common</artifactId>
+				<artifactId>common-lib</artifactId>
 				<version>1.0.0</version>
 			</dependency>
 		</dependencies>
@@ -297,19 +303,15 @@
 							</goals>
 							<configuration>
 								<transformers>
-									<transformer
-										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 										<mainClass>${mainClass}</mainClass>
 									</transformer>
-									<transformer
-										implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
-									<transformer
-										implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer" />
+									<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+									<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer" />
 									<!-- The following transform is VITAL. Used to merge grpc service 
 										resolvers residing in META-INF/services jetcd introduces custom gRPC NameResolvers 
 										that will be overwritten by the default ones defined in grpc jars -->
-									<transformer
-										implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+									<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 								</transformers>
 								<filters>
 									<filter>

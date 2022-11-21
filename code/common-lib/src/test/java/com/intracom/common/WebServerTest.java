@@ -26,7 +26,6 @@ import io.vertx.reactivex.ext.web.handler.BodyHandler;
 
 public class WebServerTest
 {
-
     private static final Logger log = LoggerFactory.getLogger(WebServerTest.class);
     private final Vertx vertx = new VertxBuilder().build();
 
@@ -50,7 +49,7 @@ public class WebServerTest
         return port;
     }
 
-    @Test
+    @Test(enabled = false)
     public void connection() throws URISyntaxException
     {
         var host = "127.0.0.63";
@@ -86,7 +85,7 @@ public class WebServerTest
         server.stopListener().blockingAwait();
     }
 
-    @Test
+    @Test(enabled = false)
     public void Termination() throws URISyntaxException
     {
         var host = "127.0.0.66";

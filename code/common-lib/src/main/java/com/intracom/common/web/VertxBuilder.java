@@ -12,6 +12,7 @@ public class VertxBuilder
 
     public VertxBuilder()
     {
+        System.out.println("TSAF");
         this.options = new VertxOptions();
     }
 

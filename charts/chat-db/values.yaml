@@ -38,6 +38,29 @@ primary:
   persistence:
     enabled: true
     storageClass: "network-block"
+  configuration: |
+    listen_addresses = '*'
+    port = '5432'
+    password_encryption = 'md5'
+    wal_level = 'replica'
+    fsync = 'on'
+    max_wal_size = '400MB'
+    max_wal_senders = '16'
+    wal_keep_size = '128MB'
+    hot_standby = 'on'
+    log_connections = 'false'
+    log_disconnections = 'false'
+    log_hostname = 'false'
+    client_min_messages = 'error'
+    shared_preload_libraries = 'pgaudit'
+    include_dir = 'conf.d'
+    pgaudit.log_catalog = 'off'
+  # pgHbaConfiguration: |
+    # host all all trust
+    # host all all localhost trust
+    # host all all ::/0 md5
+    # host all all 127.0.0.1/32 md5
+    # host all all 1/128 md5
 
 volumePermissions:
   enabled: true
