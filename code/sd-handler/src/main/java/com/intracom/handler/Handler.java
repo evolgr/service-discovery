@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.intracom.common.utilities.Jackson;
 import com.intracom.common.web.VertxBuilder;
 import com.intracom.common.web.WebClientC;
@@ -23,7 +22,6 @@ import io.vertx.reactivex.ext.web.handler.BasicAuthHandler;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
 
 public class Handler
 {
@@ -35,6 +33,7 @@ public class Handler
     private final WebClientC registryClient;
     private final Router router;
     private static final ObjectMapper json = Jackson.om();
+    private JsonObject jo;
 
     public Handler() throws UnknownHostException
     {
@@ -74,7 +73,7 @@ public class Handler
             {
                 jsonBody = json.writeValueAsString(buffer);
                 log.debug("Indicate request: {}", jsonBody);
-                JsonObject jo = new JsonObject(jsonBody);
+                jo = new JsonObject(jsonBody);
                 jo.encodePrettily();
 
                 log.debug("Pretty print request: {}", jsonBody);
@@ -89,38 +88,73 @@ public class Handler
     }
 
     // Get request to registry
-    public Single<String> get()
+    public Single<String> getRegistry()
     {
-        return this.handlerClient.get()
-                                 .flatMap(webClient -> webClient.get(0, null, null)
-                                                                .rxSend()
-                                                                .doOnError(throwable -> log.warn("GET request failed"))
-                                                                .flatMap(resp -> resp.statusCode() == HttpResponseStatus.OK.code() ? Single.just(resp.bodyAsString())
-                                                                                                                                   : Single.error(new RuntimeException("GET request failed. statusCode: "
-                                                                                                                                                                       + resp.statusCode()
-                                                                                                                                                                       + ", body: "
-                                                                                                                                                                       + resp.bodyAsString()))));
-    }
-    
-    public Single<String> post()
-    {
-        return this.handlerClient.get()
-                                 .flatMap(webClient -> webClient.post(0, null, null)
-                                                                .rxSend()
-                                                                .doOnError(throwable -> log.warn("POST request failed"))
-                                                                .flatMap(resp -> resp.statusCode() == HttpResponseStatus.OK.code() ? Single.just(resp.bodyAsString())
-                                                                                                                                   : Single.error(new RuntimeException("POST request failed. statusCode: "
-                                                                                                                                                                       + resp.statusCode()
-                                                                                                                                                                       + ", body: "
-                                                                                                                                                                       + resp.bodyAsString()))));
+        return this.registryClient.get()
+                                  .flatMap(webClient -> webClient.get(0, null, null)
+                                                                 .rxSend()
+                                                                 .doOnError(throwable -> log.warn("GET request failed"))
+                                                                 .flatMap(resp -> resp.statusCode() == HttpResponseStatus.OK.code() ? Single.just(resp.bodyAsString())
+                                                                                                                                    : Single.error(new RuntimeException("GET request failed. statusCode: "
+                                                                                                                                                                        + resp.statusCode()
+                                                                                                                                                                        + ", body: "
+                                                                                                                                                                        + resp.bodyAsString()))));
     }
 
-    public static void main(String args[]) throws InterruptedException
+    // Get request to Server side
+    public Single<String> getServer()
     {
-        while (true)
-        {
-            log.info("this is a simple example");
-            TimeUnit.SECONDS.sleep(10);
-        }
+        return this.handlerClient.get()
+                                  .flatMap(webClient -> webClient.get(0, null, null)
+                                                                 .rxSend()
+                                                                 .doOnError(throwable -> log.warn("GET request failed"))
+                                                                 .flatMap(resp -> resp.statusCode() == HttpResponseStatus.OK.code() ? Single.just(resp.bodyAsString())
+                                                                                                                                    : Single.error(new RuntimeException("GET request failed. statusCode: "
+                                                                                                                                                                        + resp.statusCode()
+                                                                                                                                                                        + ", body: "
+                                                                                                                                                                        + resp.bodyAsString()))));
+    }
+
+//    public void run()
+//    {
+//        log.info("Running...");
+//
+//        try
+//        {
+//            Completable.complete()//
+//                       .andThen(this.handlerWebServer.startListener())
+//                       .andThen(this.register.start())
+//                       .andThen(Completable.create(emitter ->
+//                       {
+//                           log.info("Registering shutdown hook.");
+//                           Runtime.getRuntime().addShutdownHook(new Thread(() ->
+//                           {
+//                               log.info("Shutdown hook called.");
+//                               this.stop().blockingAwait();
+//                               emitter.onComplete();
+//                           }));
+//                       }))
+//                       .blockingAwait();
+//        }
+//        catch (Exception e)
+//        {
+//            log.error("Exception caught, stopping monitor.", e);
+//        }
+//
+//        log.info("Stopped.");
+//    }
+
+    public static void main(String args[]) throws InterruptedException, UnknownHostException
+    {
+        int exitStatus = 0;
+
+        log.info("Starting Handler");
+
+        Handler app = new Handler();
+//        app.run();
+
+        log.info("Stopped Handler.");
+
+        System.exit(exitStatus);
     }
 }
