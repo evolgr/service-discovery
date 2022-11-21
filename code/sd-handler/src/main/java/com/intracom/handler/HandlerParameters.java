@@ -13,6 +13,10 @@ public class HandlerParameters
     public final int handlerServerPort;
     private final String username;
     private final String password;
+    private final String handlerCHost;
+    private final int handlerCPort;
+    private final String registryCHost;
+    private final int registryCPort;
 
     private HandlerParameters()
     {
@@ -28,6 +32,11 @@ public class HandlerParameters
         
         this.username = EnvParams.get("USERNAME");
         this.password = EnvParams.get("PASSWORD");
+        
+        this.handlerCHost = EnvParams.get("HANDLER_CLIENT_HOST");
+        this.handlerCPort = Integer.parseInt(EnvParams.get("HANDLER_CLIENT_PORT", 1000));
+        this.registryCHost = EnvParams.get("REGISTRY_CLIENT_HOST");
+        this.registryCPort = Integer.parseInt(EnvParams.get("REGISTRY_CLIENT_PORT", 1000));
     }
     
     public String getHostname()
@@ -54,6 +63,26 @@ public class HandlerParameters
     {
         return this.password;
     }
+    
+    public String getHandlerCHost()
+    {
+        return this.handlerCHost;
+    }
+    
+    public String getRegistryCHost()
+    {
+        return this.registryCHost;
+    }
+    
+    public int getHandlerCPort()
+    {
+        return this.handlerCPort;
+    }
+    
+    public int getRegistryCPort()
+    {
+        return this.registryCPort;
+    }
 
     @Override
     public String toString()
@@ -62,6 +91,10 @@ public class HandlerParameters
         parameters.put("hostname", hostname);
         parameters.put("serviceHostname", serviceHostname);
         parameters.put("handlerServerPort", handlerServerPort);
+        parameters.put("handlerCHost", handlerCHost);
+        parameters.put("registryCHost", registryCHost);
+        parameters.put("handlerCPort", handlerCPort);
+        parameters.put("registryCPort", registryCPort);
         return parameters.encode();
     }
 }
