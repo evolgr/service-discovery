@@ -1,16 +1,26 @@
 package com.intracom.server;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.intracom.common.utilities.Jackson;
 import com.intracom.common.web.WebServer;
 import com.intracom.model.Message;
 import com.intracom.model.Message.MessageBuilder;
+import com.intracom.model.Request;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.reactivex.Completable;
 import io.reactivex.functions.Predicate;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import io.vertx.reactivex.ext.web.RoutingContext;
 
 /**
  * 
@@ -18,46 +28,102 @@ import io.vertx.core.Handler;
 public class ChatHandler
 {
     private static final Logger log = LoggerFactory.getLogger(ChatHandler.class);
+    private static final URI CHAT_MESSAGES_URI = URI.create("/chat/messages");
+    private static final String DUMMY_USER = "JohnDoe";
+    private static final String DUMMY_MSG_0 = "Quisque faucibus lectus id turpis aliquet venenatis.";
+    private static final ObjectMapper json = Jackson.om();
+
     private final WebServer server;
-    private final Message message;
+    private final Message dummyMessage;
 
     public ChatHandler(WebServer server)
     {
-        // create web server
         this.server = server;
-        this.message = new MessageBuilder()//
-                .withId(null)
-                .withMessage("The data exist.")
-                .withOwner("God")
-                .withRecipient(false)
-                .withUser("YOU")
-                .build();
+        this.dummyMessage = new MessageBuilder().withId(0L) //
+                                                .withMessage(DUMMY_MSG_0) //
+                                                .withOwner(DUMMY_USER) //
+                                                .withRecipient(false) //
+                                                .withUser(DUMMY_USER) //
+                                                .build();
+
+        // configure web server routers
+        this.server.configureRouter(router -> router.get(CHAT_MESSAGES_URI.getPath()) //
+                                                    .handler(this::fetchMessage));
     }
 
     public Completable start()
     {
-
-        return Completable.fromAction(() ->
-        {
-            
-            // respond with dummy message
-            this.server.configureRouter(router -> router.get() //
-                                                        .handler(rc -> rc.response() //
-                                                                         .end((Handler<AsyncResult<Void>>) this.message)));
-            this.server.startListener().blockingAwait();
-        });
+        return Completable.complete() //
+                          .andThen(this.server.startListener()) //
+                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)));
     }
 
     public Completable stop()
     {
-        // close webserver
-        final Predicate<? super Throwable> logErr = t ->
+        final Predicate<? super Throwable> logError = t ->
         {
             log.warn("Ignored Exception during shutdown", t);
             return true;
         };
 
-        return Completable.complete()//
-                          .andThen(this.server.startListener().onErrorComplete(logErr));
+        return Completable.complete() //
+                          .andThen(this.server.stopListener().onErrorComplete(logError));
     }
+
+    public void fetchMessage(RoutingContext routingContext)
+    {
+        routingContext.request().bodyHandler(buffer ->
+        {
+            log.info("Handle fetch message request");
+            try
+            {
+                Request request = json.readValue(buffer.toJsonObject().toString(), Request.class);
+                log.info("Request data: {}", request);
+
+                Message reply = new MessageBuilder(this.dummyMessage).withId(this.getRandomId())
+                                                                     .withMessage(this.getRandomMessage())
+                                                                     .withOwner(request.getUser())
+                                                                     .withOwner(request.getUser())
+                                                                     .withRecipient(false)
+                                                                     .build();
+
+                routingContext.response() //
+                              .setStatusCode(HttpResponseStatus.ACCEPTED.code())
+                              .end(json.registerModule(new JodaModule()) //
+                                       .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) //
+                                       .writeValueAsString(reply));
+            }
+            catch (JsonProcessingException e)
+            {
+                log.error("Fetch message request data with invalid format");
+                routingContext.response() // create response object
+                              .setStatusCode(HttpResponseStatus.BAD_REQUEST.code()) // set response code 400
+                              .end(); // complete with response action
+            }
+        });
+    }
+
+    private String getRandomMessage()
+    {
+        var dm1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        var dm2 = "Duis fermentum lacus vitae egestas molestie.";
+        var dm3 = "Nullam sed tortor id mauris suscipit interdum.";
+        var dm4 = "Quisque vestibulum ante vel lorem commodo porttitor.";
+        var dm5 = "Maecenas et neque ac quam dapibus fringilla.";
+        var dm6 = "Vivamus eget mauris pellentesque, molestie sapien sit amet, auctor erat.";
+        var dm7 = "Quisque bibendum odio quis libero lacinia, quis luctus justo euismod.";
+        var dm8 = "Donec non turpis interdum, rhoncus lorem in, aliquam ipsum.";
+        var dm9 = "Nulla nec odio rhoncus, facilisis ligula quis, vehicula augue.";
+        var dm10 = "Sed in libero ut nisi dictum facilisis.";
+        var dm11 = "Donec id dui ut tortor laoreet dapibus in vitae lectus.";
+        var dm12 = "Donec quis tortor sed eros vulputate sodales.";
+        var dummyMessages = List.of(dm1, dm2, dm3, dm4, dm5, dm6, dm7, dm8, dm9, dm10, dm11, dm12);
+        return dummyMessages.get(new Random().nextInt(dummyMessages.size()));
+    }
+
+    private Long getRandomId()
+    {
+        return Long.parseLong(String.valueOf(new Random().ints().findFirst().getAsInt()));
+    }
+
 }

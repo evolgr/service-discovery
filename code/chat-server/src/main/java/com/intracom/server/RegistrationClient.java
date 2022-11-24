@@ -1,5 +1,9 @@
 package com.intracom.server;
 
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -25,56 +29,46 @@ import io.reactivex.functions.Predicate;
 public class RegistrationClient
 {
     private static final Logger log = LoggerFactory.getLogger(RegistrationClient.class);
+    private static final URI REGISTRY_URI = URI.create("/registrations");
+
     private final WebClient client;
-    private final String function;
+    private final ServerParameters params;
     private Disposable updater = null;
-    private final ServiceRegistry registration;
-    private final Service service;
-    private final String hostRegistry;
-    private final Double portRegistry;
 
     public RegistrationClient(WebClient client,
-                              String function,
-                              String ip,
-                              String host,
-                              Double port,
-                              String hostRegistry,
-                              Double portRegistry)
+                              ServerParameters params)
     {
-        // create webclient
         this.client = client;
-        this.function = function;
-        this.service = new ServiceBuilder().withHost(host)//
-                                           .withName(ip)
-                                           .withPort(port)
-                                           .withTimestamp(new DateTime())
-                                           .build();
-        this.registration = new ServiceRegistryBuilder()//
-                                                        .withFunction(this.function)
-                                                        .withServices((List) this.service)
-                                                        .build();
-        this.hostRegistry = hostRegistry;
-        this.portRegistry = portRegistry;
-
+        this.params = params;
     }
 
     public Single<Object> put()
     {
         return this.client.get()
-                          .map(wc -> wc.put(this.portRegistry.intValue(), this.hostRegistry, "/registrations")
+                          .map(wc -> wc.put(this.params.getRegistryPort(), //
+                                            this.params.getRegistryHost(), //
+                                            REGISTRY_URI.getPath())
                                        .ssl(false)
-                                       .rxSendJson(this.registration)
-                                       .doOnError(throwable -> log.warn("Request {} update failed", throwable))
-                                       .doOnSuccess(resp -> log.debug("PUT registration {}, statusCode: {}, statudMessage: {}, body: {}",
-                                                                      registration,
+                                       .rxSendJson(this.getRegistrationData())
+                                       .doOnError(t -> log.error("Something went wrong during registration of service: {}", t.getMessage()))
+                                       .doOnSuccess(resp -> log.debug("Registration response with statusCode: {}, statudMessage: {}, body: {}",
                                                                       resp.statusCode(),
                                                                       resp.statusMessage(),
                                                                       resp.bodyAsString()))
-                                       .map(resp -> resp.statusCode() == HttpResponseStatus.OK.code() ? Completable.complete()
-                                                                                                      : Completable.error(new RuntimeException("PUT request failed. statusCode: "
-                                                                                                                                               + resp.statusCode()
-                                                                                                                                               + ", body: "
-                                                                                                                                               + resp.bodyAsString()))));
+                                       .map(resp ->
+                                       {
+                                           if (resp.statusCode() == HttpResponseStatus.OK.code())
+                                           {
+                                               log.info("Service successfully registered");
+                                               return Completable.complete();
+                                           }
+                                           else
+                                           {
+                                               log.error("Failed to register service");
+                                               return Completable.error(new RuntimeException("PUT request failed. statusCode: " + resp.statusCode() + ", body: "
+                                                                                             + resp.bodyAsString()));
+                                           }
+                                       }));
     }
 
     public Completable start()
@@ -138,6 +132,22 @@ public class RegistrationClient
     private Single<Object> update()
     {
         return this.put();
+    }
+
+    private ServiceRegistry getRegistrationData() throws UnknownHostException
+    {
+        Service currentService = new ServiceBuilder().withHost(InetAddress.getLocalHost().getHostAddress()) // service ip address
+                                                     .withName(this.params.getHostname()) // pod/service name
+                                                     .withPort(Double.valueOf(this.params.getServerPort())) // server port
+                                                     .withTimestamp(new DateTime()) // current date/time
+                                                     .build();
+        List<Service> services = new ArrayList<Service>();
+        services.add(currentService);
+        ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().withFunction(this.params.function) //
+                                                                      .withServices(services) //
+                                                                      .build();
+        log.info("Registration data {}", serviceRegistry);
+        return serviceRegistry;
     }
 
 }

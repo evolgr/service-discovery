@@ -55,7 +55,7 @@ public class HandlerParameters
     public static HandlerParameters fromEnvironment()
     {
         return new HandlerParameters(Integer.parseInt(EnvParams.get("HANDLER_PORT", 8080)),
-                                     EnvParams.get("HANDLER_CLIENT_HOST", "sd-registry"),
+                                     EnvParams.get("REGISTRY_HOST", "sd-registry"),
                                      Integer.parseInt(EnvParams.get("REGISTRY_PORT", 8080)));
     }
 

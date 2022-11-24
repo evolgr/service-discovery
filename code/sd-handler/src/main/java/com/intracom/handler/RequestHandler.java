@@ -120,16 +120,16 @@ public class RequestHandler
                                 {
                                     // forward request to identified service
                                     this.forwardRequest(routingContext, selectedService, serviceDiscovery) //
-                                        .subscribe(fr ->
+                                        .subscribe(fwdResp ->
                                         {
                                             log.info("Backend service response with code:{}, result message:{} and body:{}", //
-                                                     fr.statusCode(), //
-                                                     fr.statusMessage(), //
-                                                     fr.bodyAsJsonObject());
+                                                     fwdResp.statusCode(), //
+                                                     fwdResp.statusMessage(), //
+                                                     fwdResp.bodyAsJsonObject());
                                             routingContext.response() // create response object
-                                                          .setStatusCode(fr.statusCode()) // set response code from backend service
-                                                          .setStatusMessage(fr.statusMessage()) // set response code message
-                                                          .end(fr.bodyAsString());
+                                                          .setStatusCode(fwdResp.statusCode()) // set response code from backend service
+                                                          .setStatusMessage(fwdResp.statusMessage()) // set response code message
+                                                          .end(fwdResp.bodyAsString());
                                         }, // complete with response action
                                                    t -> log.error("Error during the forward of request to backend service.", t));
                                 }

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.intracom.common.web.VertxBuilder;
 import com.intracom.common.web.WebClient;
 import com.intracom.common.web.WebServer;
+import com.intracom.server.ServerParameters.ServerParametersBuilder;
 
 import io.vertx.reactivex.core.Vertx;
 
@@ -25,7 +26,8 @@ public class Server
     {
         // empty constructor
         this.webClient = WebClient.builder().build(this.vertx);
-        this.registrationClient = new RegistrationClient(this.webClient, "function", null, "ChatServerHost", null, "RegistrationHost", null);
+        var params = new ServerParametersBuilder().build();
+        this.registrationClient = new RegistrationClient(this.webClient, params);
         this.webServer = WebServer.builder()//
                                   .withHost(InetAddress.getLocalHost().getHostAddress())
                                   .withPort((Integer) null)
