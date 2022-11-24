@@ -1,12 +1,17 @@
 package com.intracom.server;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.intracom.common.web.WebClientC;
+import com.intracom.model.Service;
 import com.intracom.model.ServiceRegistry;
+import com.intracom.model.ServiceRegistry.ServiceRegistryBuilder;
+import com.intracom.model.Service.ServiceBuilder;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.reactivex.Completable;
@@ -22,32 +27,43 @@ public class RegistrationClient
     private static final Logger log = LoggerFactory.getLogger(RegistrationClient.class);
     private final WebClientC client;
     private final String function;
-    private final String ip;
-    private final String host;
-    private final int port;
     private Disposable updater = null;
+    private final ServiceRegistry registration;
+    private final Service service;
+    private final String hostRegistry;
+    private final Double portRegistry;
 
     public RegistrationClient(WebClientC client,
                               String function,
                               String ip,
                               String host,
-                              int port)
+                              Double port,
+                              String hostRegistry,
+                              Double portRegistry)
     {
         // create webclient
         this.client = client;
         this.function = function;
-        this.ip = ip;
-        this.host = host;
-        this.port = port;
+        this.service = new ServiceBuilder().withHost(host)//
+                .withName(ip)
+                .withPort(port)
+                .withTimestamp(new DateTime())
+                .build();
+        this.registration = new ServiceRegistryBuilder()//
+                .withFunction(this.function)
+                .withServices((List) this.service)
+                .build();
+        this.hostRegistry = hostRegistry;
+        this.portRegistry = portRegistry;
+        
     }
 
-    public Single<Object> put(ServiceRegistry registration)
+    public Single<Object> put()
     {
-
         return this.client.get()
-                          .map(wc -> wc.put(this.port, this.host, "/registrations")
+                          .map(wc -> wc.put(this.portRegistry.intValue(), this.hostRegistry, "/registrations")
                                        .ssl(false)
-                                       .rxSendJson(registration)
+                                       .rxSendJson(this.registration)
                                        .doOnError(throwable -> log.warn("Request {} update failed", throwable))
                                        .doOnSuccess(resp -> log.debug("PUT registration {}, statusCode: {}, statudMessage: {}, body: {}",
                                                                       registration,
@@ -61,7 +77,7 @@ public class RegistrationClient
                                                                                                                                                + resp.bodyAsString()))));
     }
 
-    public Completable start(ServiceRegistry registration)
+    public Completable start()
     {
         // continously send registrations every 1 min
         // to sd-registry service
@@ -73,10 +89,9 @@ public class RegistrationClient
             {
                 while (true)
                 {
-
                     if (this.updater == null)
                     {
-                        this.updater = this.update(registration)
+                        this.updater = this.update()
                                            .timeout(1500, TimeUnit.MILLISECONDS)
                                            .doOnSubscribe(e -> log.debug("Updating registration."))
                                            .doOnError(e -> log.debug("Updating registration failed. Cause: {}", e.toString()))
@@ -87,7 +102,6 @@ public class RegistrationClient
                                            .subscribe(() -> log.info("Stopped updating registration."),
                                                       t -> log.error("Stopped updating registration. Cause: {}", t.toString()));
 
-                        System.out.println();
                         Thread.sleep(60 * 1000);
                     }
                 }
@@ -121,9 +135,9 @@ public class RegistrationClient
         
     }
 
-    private Single<Object> update(ServiceRegistry registration)
+    private Single<Object> update()
     {
-        return this.put(registration);
+        return this.put();
     }
 
 }
