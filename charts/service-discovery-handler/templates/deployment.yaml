@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "service-discovery-handler.name" . }}
+  labels:
+{{- include "service-discovery-handler.labels" . | indent 4 }}
+    app: {{ template "service-discovery-handler.name" . }}
+  annotations:
+{{- include "service-discovery-handler.helm-annotations" . | indent 4 }}
+spec:
+  replicas: {{ .Values.service.sdhandler.replicas }}
+  strategy:
+    type: {{ .Values.updateStrategy.type | quote }}
+  selector:
+    matchLabels:
+      app: {{ template "service-discovery-handler.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "service-discovery-handler.name" . }}
+{{- include "service-discovery-handler.labels" . | indent 8 }}
+      annotations:
+{{- include "service-discovery-handler.helm-annotations" . | indent 8 }}
+    spec:
+      serviceAccountName: {{ template "service-discovery-handler.name" . }}
+      {{- if .Values.imageCredentials.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imageCredentials.pullSecret . }}
+      {{- end }}
+      containers:
+      - name: {{ template "service-discovery-handler.name" . }}
+        image: {{ .Values.imageCredentials.sdhandler.registry.url }}/{{ .Values.imageCredentials.sdhandler.repoPath }}/{{ .Values.imageCredentials.sdhandler.image.name }}:{{ .Values.imageCredentials.sdhandler.image.tag }}
+        imagePullPolicy: {{ .Values.imageCredentials.sdhandler.registry.imagePullPolicy }}
+        env:
+          - name: JVM_PARAMS
+            value: {{ .Values.jvm.parameters.sdhandler | quote}} 
+          - name: NAMESPACE
+            value: {{ .Release.Namespace | quote }}
+          - name: INSTANCE_NAME
+            value: {{ .Release.Name | quote}} 
+          - name: TZ
+            value: {{ include "service-discovery-handler.timezone" . }}
+        resources:
+          requests:
+            cpu: {{ .Values.resources.sdhandler.requests.cpu | quote }}
+            memory: {{ .Values.resources.sdhandler.requests.memory | quote }}
+            {{- if index .Values.resources.sdhandler.requests "ephemeral-storage" }}
+            ephemeral-storage: {{ index .Values.resources.sdhandler.requests "ephemeral-storage" | quote }}
+            {{- end }}
+          limits:
+            cpu: {{ .Values.resources.sdhandler.limits.cpu | quote }}
+            memory: {{ .Values.resources.sdhandler.limits.memory | quote }}
+            {{- if index .Values.resources.sdhandler.limits "ephemeral-storage" }}
+            ephemeral-storage: {{ index .Values.resources.sdhandler.limits "ephemeral-storage" | quote }}
+            {{- end }}
+        volumeMounts:
+          - name: shared-data
+            mountPath: /etc/config
+        ports:
+        - containerPort: {{ .Values.service.sdhandler.port }}
+      volumes:
+          - name: shared-data
+            emptyDir: {}

@@ -1,0 +1,5 @@
+{{- define "service-registry.de-facto-labels" }}
+app.kubernetes.io/name: {{ template "service-registry.name" . }}
+app.kubernetes.io/version: {{ template "service-registry.version" . }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- end}}

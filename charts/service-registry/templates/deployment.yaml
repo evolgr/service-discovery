@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "service-registry.name" . }}
+  labels:
+{{- include "service-registry.labels" . | indent 4 }}
+    app: {{ template "service-registry.name" . }}
+  annotations:
+{{- include "service-registry.helm-annotations" . | indent 4 }}
+spec:
+  replicas: {{ .Values.service.serviceregistry.replicas }}
+  strategy:
+    type: {{ .Values.updateStrategy.type | quote }}
+  selector:
+    matchLabels:
+      app: {{ template "service-registry.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "service-registry.name" . }}
+{{- include "service-registry.labels" . | indent 8 }}
+      annotations:
+{{- include "service-registry.helm-annotations" . | indent 8 }}
+    spec:
+      serviceAccountName: {{ template "service-registry.name" . }}
+      {{- if .Values.imageCredentials.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imageCredentials.pullSecret }}
+      {{- end }}
+      containers:
+      - name: {{ template "service-registry.name" . }}
+        image: {{ .Values.imageCredentials.serviceregistry.registry.url }}/{{ .Values.imageCredentials.serviceregistry.repoPath }}/{{ .Values.imageCredentials.serviceregistry.image.name }}:{{ .Values.imageCredentials.serviceregistry.image.tag }}
+        imagePullPolicy: {{ .Values.imageCredentials.serviceregistry.registry.imagePullPolicy }}
+        env:
+          - name: JVM_PARAMS
+            value: {{ .Values.jvm.parameters.serviceregistry | quote}} 
+          - name: NAMESPACE
+            value: {{ .Release.Namespace | quote }}
+          - name: INSTANCE_NAME
+            value: {{ .Release.Name | quote}} 
+          - name: TZ
+            value: {{ include "service-registry.timezone" . }}
+        resources:
+          requests:
+            cpu: {{ .Values.resources.serviceregistry.requests.cpu | quote }}
+            memory: {{ .Values.resources.serviceregistry.requests.memory | quote }}
+            {{- if index .Values.resources.serviceregistry.requests "ephemeral-storage" }}
+            ephemeral-storage: {{ index .Values.resources.serviceregistry.requests "ephemeral-storage" | quote }}
+            {{- end }}
+          limits:
+            cpu: {{ .Values.resources.serviceregistry.limits.cpu | quote }}
+            memory: {{ .Values.resources.serviceregistry.limits.memory | quote }}
+            {{- if index .Values.resources.serviceregistry.limits "ephemeral-storage" }}
+            ephemeral-storage: {{ index .Values.resources.serviceregistry.limits "ephemeral-storage" | quote }}
+            {{- end }}
+        volumeMounts:
+          - name: shared-data
+            mountPath: /etc/config
+        ports:
+        - containerPort: {{ .Values.service.serviceregistry.port }}
+      volumes:
+          - name: shared-data
+            emptyDir: {}
