@@ -10,13 +10,13 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 public class Jackson
 {
-    private static final JsonMapper OM = newOm();
+    private static final JsonMapper OM = alteredObjectMapper();
 
     private Jackson()
     {
     }
 
-    public static JsonMapper newOm()
+    public static JsonMapper alteredObjectMapper()
     {
         return JsonMapper.builder()
                          .addModules(new ParameterNamesModule(), //

@@ -1,22 +1,22 @@
 package com.intracom.common.web;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.reactivex.Completable;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
-public class TerminateHook
+public class TerminateHook implements AutoCloseable
 {
     private static final Logger log = LoggerFactory.getLogger(TerminateHook.class);
-    private final Completable vmShutdown;
-    private final CompletableFuture<Object> shutdownComplete = new CompletableFuture<>();
+    private final Completable terminate;
+    private final CompletableFuture<Object> termination = new CompletableFuture<>();
 
     public TerminateHook()
     {
-        this.vmShutdown = Completable.create(emitter ->
+        this.terminate = Completable.create(emitter ->
         {
             final var hook = new Thread(() ->
             {
@@ -25,7 +25,7 @@ public class TerminateHook
 
                 try
                 {
-                    shutdownComplete.get();
+                    termination.get();
                 }
                 catch (InterruptedException e)
                 {
@@ -33,7 +33,8 @@ public class TerminateHook
                 }
                 catch (ExecutionException e)
                 {
-                    // Ignore exception, continue JVM shutdown
+                    // Continue JVM shutdown and log exception
+                    log.error("Error during shutdown", e);
                 }
             });
             hook.setName(TerminateHook.class.getName());
@@ -43,6 +44,17 @@ public class TerminateHook
     
     public Completable get()
     {
-        return this.vmShutdown;
+        return this.terminate;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.AutoCloseable#close()
+     */
+    @Override
+    public void close()
+    {
+        this.termination.complete(new Object());
     }
 }

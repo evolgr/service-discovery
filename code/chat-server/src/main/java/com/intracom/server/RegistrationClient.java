@@ -7,11 +7,11 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.intracom.common.web.WebClientC;
+import com.intracom.common.web.WebClient;
 import com.intracom.model.Service;
+import com.intracom.model.Service.ServiceBuilder;
 import com.intracom.model.ServiceRegistry;
 import com.intracom.model.ServiceRegistry.ServiceRegistryBuilder;
-import com.intracom.model.Service.ServiceBuilder;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.reactivex.Completable;
@@ -25,7 +25,7 @@ import io.reactivex.functions.Predicate;
 public class RegistrationClient
 {
     private static final Logger log = LoggerFactory.getLogger(RegistrationClient.class);
-    private final WebClientC client;
+    private final WebClient client;
     private final String function;
     private Disposable updater = null;
     private final ServiceRegistry registration;
@@ -33,7 +33,7 @@ public class RegistrationClient
     private final String hostRegistry;
     private final Double portRegistry;
 
-    public RegistrationClient(WebClientC client,
+    public RegistrationClient(WebClient client,
                               String function,
                               String ip,
                               String host,
@@ -45,17 +45,17 @@ public class RegistrationClient
         this.client = client;
         this.function = function;
         this.service = new ServiceBuilder().withHost(host)//
-                .withName(ip)
-                .withPort(port)
-                .withTimestamp(new DateTime())
-                .build();
+                                           .withName(ip)
+                                           .withPort(port)
+                                           .withTimestamp(new DateTime())
+                                           .build();
         this.registration = new ServiceRegistryBuilder()//
-                .withFunction(this.function)
-                .withServices((List) this.service)
-                .build();
+                                                        .withFunction(this.function)
+                                                        .withServices((List) this.service)
+                                                        .build();
         this.hostRegistry = hostRegistry;
         this.portRegistry = portRegistry;
-        
+
     }
 
     public Single<Object> put()
@@ -121,10 +121,10 @@ public class RegistrationClient
             log.warn("Ignored Exception during shutdown", t);
             return true;
         };
-        
+
         return Completable.complete()//
-                .andThen(this.client.close().onErrorComplete(logErr))
-                .andThen(Completable.fromAction(() ->
+                          .andThen(this.client.close().onErrorComplete(logErr))
+                          .andThen(Completable.fromAction(() ->
                           {
                               if (this.updater != null)
                               {
@@ -132,7 +132,7 @@ public class RegistrationClient
                                   this.updater = null;
                               }
                           }));
-        
+
     }
 
     private Single<Object> update()

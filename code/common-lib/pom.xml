@@ -52,7 +52,7 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>fi</id>
+						<id>sd</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>

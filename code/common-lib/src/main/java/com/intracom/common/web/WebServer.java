@@ -240,5 +240,9 @@ public class WebServer
             return Set.copyOf(this.connections);
         }
     }
-  
+
+    public Vertx getVertx()
+    {
+        return this.vertx;
+    }
 }

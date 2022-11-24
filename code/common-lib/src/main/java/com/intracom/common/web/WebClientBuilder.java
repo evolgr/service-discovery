@@ -5,17 +5,17 @@ import io.vertx.core.http.HttpVersion;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.reactivex.core.Vertx;
 
-public class WebClientCBuilder
+public class WebClientBuilder
 {
     final WebClientOptions options = new WebClientOptions().setProtocolVersion(HttpVersion.HTTP_2);
     String hostname;
 
-    public WebClientCBuilder()
+    public WebClientBuilder()
     {
         // empty constructor
     }
 
-    public WebClientCBuilder withOptions(Consumer<WebClientOptions> options)
+    public WebClientBuilder withOptions(Consumer<WebClientOptions> options)
     {
         try
         {
@@ -28,8 +28,8 @@ public class WebClientCBuilder
         return this;
     }
 
-    public WebClientC build(Vertx vertx)
+    public WebClient build(Vertx vertx)
     {
-        return new WebClientC(vertx, this);
+        return new WebClient(vertx, this);
     }
 }

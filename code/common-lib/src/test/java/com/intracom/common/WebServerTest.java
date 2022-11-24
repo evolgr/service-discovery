@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.intracom.common.web.VertxBuilder;
-import com.intracom.common.web.WebClientCBuilder;
+import com.intracom.common.web.WebClientBuilder;
 import com.intracom.common.web.WebServerBuilder;
 
 import io.reactivex.Completable;
@@ -64,12 +64,12 @@ public class WebServerTest
                                                                 .end("web-server works")));
         server.startListener().blockingAwait();
 
-        var client = new WebClientCBuilder().withOptions(options -> options.setProtocolVersion(HttpVersion.HTTP_2) //
-                                                                           .setHttp2ClearTextUpgrade(false) //
-                                                                           .setHttp2MaxPoolSize(4) //
-                                                                           .setDefaultHost(host) //
-                                                                           .setDefaultPort(server.actualPort()))
-                                            .build(this.vertx);
+        var client = new WebClientBuilder().withOptions(options -> options.setProtocolVersion(HttpVersion.HTTP_2) //
+                                                                          .setHttp2ClearTextUpgrade(false) //
+                                                                          .setHttp2MaxPoolSize(4) //
+                                                                          .setDefaultHost(host) //
+                                                                          .setDefaultPort(server.actualPort()))
+                                           .build(this.vertx);
 
         var serverURI = new URI("/best/test");
         var response = client.get()
@@ -117,12 +117,12 @@ public class WebServerTest
                                                 }));
         server2.startListener().blockingAwait();
 
-        var client = new WebClientCBuilder().withOptions(options -> options.setProtocolVersion(HttpVersion.HTTP_2) //
-                                                                           .setHttp2ClearTextUpgrade(false) //
-                                                                           .setHttp2MaxPoolSize(4) //
-                                                                           .setDefaultHost(host) //
-                                                                           .setDefaultPort(server2.actualPort()))
-                                            .build(this.vertx);
+        var client = new WebClientBuilder().withOptions(options -> options.setProtocolVersion(HttpVersion.HTTP_2) //
+                                                                          .setHttp2ClearTextUpgrade(false) //
+                                                                          .setHttp2MaxPoolSize(4) //
+                                                                          .setDefaultHost(host) //
+                                                                          .setDefaultPort(server2.actualPort()))
+                                           .build(this.vertx);
 
         var ans = new AtomicInteger(0);
         var cnt = 1000;
