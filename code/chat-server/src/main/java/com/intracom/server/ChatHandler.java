@@ -1,6 +1,8 @@
 package com.intracom.server;
 
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Random;
 
@@ -32,13 +34,41 @@ public class ChatHandler
     private static final String DUMMY_USER = "JohnDoe";
     private static final String DUMMY_MSG_0 = "Quisque faucibus lectus id turpis aliquet venenatis.";
     private static final ObjectMapper json = Jackson.om();
+    private static final String DUMMY_MESSAGE_1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+    private static final String DUMMY_MESSAGE_2 = "Duis fermentum lacus vitae egestas molestie.";
+    private static final String DUMMY_MESSAGE_3 = "Nullam sed tortor id mauris suscipit interdum.";
+    private static final String DUMMY_MESSAGE_4 = "Quisque vestibulum ante vel lorem commodo porttitor.";
+    private static final String DUMMY_MESSAGE_5 = "Maecenas et neque ac quam dapibus fringilla.";
+    private static final String DUMMY_MESSAGE_6 = "Vivamus eget mauris pellentesque, molestie sapien sit amet, auctor erat.";
+    private static final String DUMMY_MESSAGE_7 = "Quisque bibendum odio quis libero lacinia, quis luctus justo euismod.";
+    private static final String DUMMY_MESSAGE_8 = "Donec non turpis interdum, rhoncus lorem in, aliquam ipsum.";
+    private static final String DUMMY_MESSAGE_9 = "Nulla nec odio rhoncus, facilisis ligula quis, vehicula augue.";
+    private static final String DUMMY_MESSAGE_10 = "Sed in libero ut nisi dictum facilisis.";
+    private static final String DUMMY_MESSAGE_11 = "Donec id dui ut tortor laoreet dapibus in vitae lectus.";
+    private static final String DUMMY_MESSAGE_12 = "Donec quis tortor sed eros vulputate sodales.";
+    private static final List<String> DUMMY_MESSAGES = List.of(DUMMY_MESSAGE_1, //
+                                                               DUMMY_MESSAGE_2, //
+                                                               DUMMY_MESSAGE_3, //
+                                                               DUMMY_MESSAGE_4, //
+                                                               DUMMY_MESSAGE_5, //
+                                                               DUMMY_MESSAGE_6, //
+                                                               DUMMY_MESSAGE_7, //
+                                                               DUMMY_MESSAGE_8, //
+                                                               DUMMY_MESSAGE_9, //
+                                                               DUMMY_MESSAGE_10, //
+                                                               DUMMY_MESSAGE_11, //
+                                                               DUMMY_MESSAGE_12);
 
     private final WebServer server;
     private final Message dummyMessage;
 
-    public ChatHandler(WebServer server)
+    public ChatHandler(ServerParameters params) throws UnknownHostException
     {
-        this.server = server;
+        this.server = WebServer.builder() // create new webserver
+                               .withHost(InetAddress.getLocalHost().getHostAddress()) // set current ip address
+                               .withPort(params.getServerPort()) // use port from input parameters
+                               .build(params.getVertx()); // build new webserver using common Vert.x Core API entry point
+
         this.dummyMessage = new MessageBuilder().withId(0L) //
                                                 .withMessage(DUMMY_MSG_0) //
                                                 .withOwner(DUMMY_USER) //
@@ -103,22 +133,14 @@ public class ChatHandler
         });
     }
 
+    public List<String> getDummyMessages()
+    {
+        return DUMMY_MESSAGES;
+    }
+
     private String getRandomMessage()
     {
-        var dm1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-        var dm2 = "Duis fermentum lacus vitae egestas molestie.";
-        var dm3 = "Nullam sed tortor id mauris suscipit interdum.";
-        var dm4 = "Quisque vestibulum ante vel lorem commodo porttitor.";
-        var dm5 = "Maecenas et neque ac quam dapibus fringilla.";
-        var dm6 = "Vivamus eget mauris pellentesque, molestie sapien sit amet, auctor erat.";
-        var dm7 = "Quisque bibendum odio quis libero lacinia, quis luctus justo euismod.";
-        var dm8 = "Donec non turpis interdum, rhoncus lorem in, aliquam ipsum.";
-        var dm9 = "Nulla nec odio rhoncus, facilisis ligula quis, vehicula augue.";
-        var dm10 = "Sed in libero ut nisi dictum facilisis.";
-        var dm11 = "Donec id dui ut tortor laoreet dapibus in vitae lectus.";
-        var dm12 = "Donec quis tortor sed eros vulputate sodales.";
-        var dummyMessages = List.of(dm1, dm2, dm3, dm4, dm5, dm6, dm7, dm8, dm9, dm10, dm11, dm12);
-        return dummyMessages.get(new Random().nextInt(dummyMessages.size()));
+        return DUMMY_MESSAGES.get(new Random().nextInt(DUMMY_MESSAGES.size()));
     }
 
     private Long getRandomId()

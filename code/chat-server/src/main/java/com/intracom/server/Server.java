@@ -1,47 +1,74 @@
 package com.intracom.server;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.intracom.common.web.TerminateHook;
 import com.intracom.common.web.VertxBuilder;
-import com.intracom.common.web.WebClient;
-import com.intracom.common.web.WebServer;
 import com.intracom.server.ServerParameters.ServerParametersBuilder;
 
+import io.reactivex.Completable;
+import io.reactivex.functions.Predicate;
 import io.vertx.reactivex.core.Vertx;
 
 public class Server
 {
     private static final Logger log = LoggerFactory.getLogger(Server.class);
-    private final RegistrationClient registrationClient;
+    private final RegistrationHandler registrationHandler;
     private final ChatHandler chatHandler;
-    private final WebServer webServer;
-    private final WebClient webClient;
+    private final ServerParameters params;
     private final Vertx vertx = new VertxBuilder().build();
 
-    public Server() throws UnknownHostException
+    public Server(ServerParameters params) throws UnknownHostException
     {
-        // empty constructor
-        this.webClient = WebClient.builder().build(this.vertx);
-        var params = new ServerParametersBuilder().build();
-        this.registrationClient = new RegistrationClient(this.webClient, params);
-        this.webServer = WebServer.builder()//
-                                  .withHost(InetAddress.getLocalHost().getHostAddress())
-                                  .withPort((Integer) null)
-                                  .build(this.vertx);
-        this.chatHandler = new ChatHandler(this.webServer);
+        this.params = params;
+        this.registrationHandler = new RegistrationHandler(this.params);
+        this.chatHandler = new ChatHandler(this.params);
+    }
+
+    private Completable run()
+    {
+        return Completable.complete() //
+                          .andThen(this.registrationHandler.start())
+                          .andThen(this.chatHandler.start())
+                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)));
+    }
+
+    private Completable stop()
+    {
+        final Predicate<? super Throwable> logError = t ->
+        {
+            log.warn("Ignored Exception during shutdown", t);
+            return true;
+        };
+
+        return Completable.complete() //
+                          .doOnSubscribe(disposable -> log.info("Initiated gracefull shutdown"))
+                          .andThen(this.chatHandler.stop().onErrorComplete(logError))
+                          .andThen(this.registrationHandler.stop().onErrorComplete(logError))
+                          .andThen(this.params.getVertx().rxClose().onErrorComplete(logError));
     }
 
     public static void main(String args[]) throws InterruptedException, UnknownHostException
     {
-        Server server = new Server();
-        server.registrationClient.start();
-        server.chatHandler.start();
+        var terminateCode = 0;
+        log.info("Staring Chat server");
 
-        server.registrationClient.stop();
-        server.chatHandler.stop();
+        try (var termination = new TerminateHook())
+        {
+            var params = new ServerParametersBuilder().build();
+            var server = new Server(params);
+            server.run().blockingAwait();
+        }
+        catch (Exception e)
+        {
+            log.error("Chat server terminated abnormally", e);
+            terminateCode = 1;
+        }
+
+        log.info("Chat server stopped.");
+        System.exit(terminateCode);
     }
 }

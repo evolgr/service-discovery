@@ -26,19 +26,18 @@ import io.reactivex.functions.Predicate;
 /**
  * 
  */
-public class RegistrationClient
+public class RegistrationHandler
 {
-    private static final Logger log = LoggerFactory.getLogger(RegistrationClient.class);
+    private static final Logger log = LoggerFactory.getLogger(RegistrationHandler.class);
     private static final URI REGISTRY_URI = URI.create("/registrations");
 
     private final WebClient client;
     private final ServerParameters params;
     private Disposable updater = null;
 
-    public RegistrationClient(WebClient client,
-                              ServerParameters params)
+    public RegistrationHandler(ServerParameters params)
     {
-        this.client = client;
+        this.client = WebClient.builder().build(params.getVertx());
         this.params = params;
     }
 
@@ -73,10 +72,6 @@ public class RegistrationClient
 
     public Completable start()
     {
-        // continously send registrations every 1 min
-        // to sd-registry service
-        // with data according to ServiceRegistry.java
-        // autogenerate timestamp
         return Completable.fromAction(() ->
         {
             try
@@ -109,7 +104,6 @@ public class RegistrationClient
 
     public Completable stop()
     {
-        // close web client
         final Predicate<? super Throwable> logErr = t ->
         {
             log.warn("Ignored Exception during shutdown", t);
