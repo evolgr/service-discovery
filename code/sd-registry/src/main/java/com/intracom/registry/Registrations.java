@@ -1,55 +1,68 @@
-/**
- * COPYRIGHT ERICSSON GMBH 2022
- *
- * The copyright to the computer program(s) herein is the property
- * of Ericsson GmbH, Germany.
- *
- * The program(s) may be used and/or copied only with the written
- * permission of Ericsson GmbH in accordance with
- * the terms and conditions stipulated in the agreement/contract
- * under which the program(s) have been supplied.
- *
- * Created on: Nov 22, 2022
- *     Author: ekoteva
- */
-
 package com.intracom.registry;
 
-import java.util.Set;
+import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.intracom.common.web.WebServer;
-import com.intracom.model.Service;
 
 import io.reactivex.Completable;
+import io.reactivex.functions.Predicate;
 
 /**
  * 
  */
 public class Registrations
 {
+    private static final Logger log = LoggerFactory.getLogger(Registrations.class);
+    private static final URI REGISTRY_URI = URI.create("/registrations");
+    private final WebServer serverChat;
+    
 
-    private Set<Service> services;
-
-    public Registrations(WebServer server)
+    public Registrations(WebServer serverChat)
     {
         // create webserver
+        this.serverChat = serverChat;
     }
 
-    public Set<Service> getService(String function)
+    public void putService() throws JsonProcessingException
     {
-        // return services that belong to specific function
-        return services;
+        // update services that belong to specific function
+        this.serverChat.configureRouter(router -> router.put(REGISTRY_URI.getPath()) //
+                                                    .handler(rc ->
+                                                    {
+                                                        rc.request() //
+                                                          .bodyHandler(buffer ->
+                                                          {
+                                                              log.info("Updated service received {}", buffer.toString());
+                                                              rc.response().end();
+                                                          });
+                                                    }));
     }
 
     public Completable start()
     {
         // start webserver and update services
-        return null;
+        return Completable.fromAction(() ->
+        {
+            this.putService();
+            this.serverChat.startListener().blockingAwait();
+        });
     }
 
     public Completable stop()
     {
         // stop webserver
-        return null;
+        final Predicate<? super Throwable> logError = t ->
+        {
+            log.warn("Ignored Exception during shutdown", t);
+            return true;
+        };
+
+        return Completable.complete()//
+                          .doOnSubscribe(disp -> log.info("Initiated gracefull shutdown"))
+                          .andThen(this.serverChat.stopListener().onErrorComplete(logError));
     }
 }
