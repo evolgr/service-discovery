@@ -30,7 +30,8 @@ public class Server
         return Completable.complete() //
                           .andThen(this.registrationHandler.start())
                           .andThen(this.chatHandler.start())
-                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)));
+                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
+                          .andThen(this.stop());
     }
 
     private Completable stop()

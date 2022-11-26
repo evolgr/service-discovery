@@ -96,7 +96,7 @@ public class RequestHandler
                             {
                                 log.error("No registrered services found.");
                                 routingContext.response() // create response object
-                                              .setStatusCode(HttpResponseStatus.NOT_FOUND.code()) // set response code 400
+                                              .setStatusCode(HttpResponseStatus.NO_CONTENT.code()) // set response code 204
                                               .end("Failed to identify service with requested function name");
                             }
                             else if (cr.statusCode() == HttpResponseStatus.FOUND.code())

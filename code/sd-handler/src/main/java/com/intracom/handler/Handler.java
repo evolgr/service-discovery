@@ -56,6 +56,7 @@ public class Handler
         return Completable.complete()//
                           .doOnSubscribe(disp -> log.info("Initiated gracefull shutdown"))
                           .andThen(this.server.stopListener().onErrorComplete(logError))
+                          .andThen(this.client.close().onErrorComplete(logError))
                           .andThen(this.vertx.rxClose().onErrorComplete(logError));
 
     }

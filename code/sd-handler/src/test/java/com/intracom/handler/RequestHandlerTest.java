@@ -102,7 +102,9 @@ public class RequestHandlerTest
                                               .build();
         var data = new ArrayList<Service>();
         data.add(service);
-        var serviceRegistry = new ServiceRegistryBuilder("chat", data).build();
+        var serviceRegistry = new ServiceRegistryBuilder().withFunction("chat") //
+                                                          .withServices(data)
+                                                          .build();
         var responseData = json.registerModule(new JodaModule()) //
                                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) //
                                .writeValueAsString(serviceRegistry);
