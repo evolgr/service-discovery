@@ -129,16 +129,17 @@ public class RequestHandlerTest
     private void afterClass()
     {
         this.externalClient.close();
-        this.backendServiceServer.stopListener();
-        this.backendServiceServer.shutdown();
-        this.backendServiceServer.stopListener();
-        this.backendServiceServer.shutdown();
-        this.registryServiceServer.stopListener();
-        this.registryServiceServer.shutdown();
+        this.backendServiceServer.shutdown().blockingAwait();
+//        this.backendServiceServer.stopListener().blockingAwait();
+        this.backendServiceServer.shutdown().blockingAwait();
+//        this.backendServiceServer.stopListener().blockingAwait();
+        this.registryServiceServer.shutdown().blockingAwait();
+//        this.registryServiceServer.stopListener().blockingAwait();
+        this.vertx.close();
     }
 
     @Test
-    public void SimpleRequestTest() throws InterruptedException, JsonProcessingException
+    public void simpleRequestTest() throws InterruptedException, JsonProcessingException
     {
         var parameters = new HandlerParametersBuilder().withHandlerPort(this.handlerServiceServer.actualPort()) //
                                                        .withRegistryHost(REGISTRY_SERVER_LOCAL_HOST) //

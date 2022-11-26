@@ -1,5 +1,8 @@
 package com.intracom.server;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import com.intracom.common.utilities.EnvParams;
 import com.intracom.common.web.VertxBuilder;
 
@@ -13,23 +16,36 @@ public class ServerParameters
 {
 
     private final Vertx vertx = new VertxBuilder().build();
-    public String serverHostname;
-    public int serverPort;
-    public String function;
-    public String registryHost;
-    public int registryPort;
+    private String serverPodname;
+    private String serverAddress;
+    private int serverPort;
+    private String function;
+    private String registryHost;
+    private int registryPort;
 
-    private ServerParameters(String serverHostname,
+    private ServerParameters(String serverPodname,
+                             String serverAddress,
                              int serverPort,
                              String function,
                              String registryHost,
                              int registryPort)
     {
-        this.serverHostname = serverHostname;
+        this.serverPodname = serverPodname;
+        this.serverAddress = serverAddress;
         this.serverPort = serverPort;
         this.function = function;
         this.registryHost = registryHost;
         this.registryPort = registryPort;
+    }
+
+    private ServerParameters(ServerParameters oldInstance)
+    {
+        this.serverPodname = oldInstance.serverPodname;
+        this.serverAddress = oldInstance.serverAddress;
+        this.serverPort = oldInstance.serverPort;
+        this.function = oldInstance.function;
+        this.registryHost = oldInstance.registryHost;
+        this.registryPort = oldInstance.registryPort;
     }
 
     public Vertx getVertx()
@@ -37,9 +53,14 @@ public class ServerParameters
         return this.vertx;
     }
 
-    public String getHostname()
+    public String getServerPodname()
     {
-        return this.serverHostname;
+        return this.serverPodname;
+    }
+
+    public String getServerAddress()
+    {
+        return this.serverAddress;
     }
 
     public int getServerPort()
@@ -66,7 +87,8 @@ public class ServerParameters
     public String toString()
     {
         var parameters = new JsonObject();
-        parameters.put("Backend server service hostname", serverHostname);
+        parameters.put("Backend server service pod name", serverPodname);
+        parameters.put("Backend server service address", serverAddress);
         parameters.put("Backend server service port", serverPort);
         parameters.put("Backend server service function", function);
         parameters.put("Service registry host", registryHost);
@@ -74,9 +96,10 @@ public class ServerParameters
         return parameters.encode();
     }
 
-    public static ServerParameters fromEnvironment()
+    public static ServerParameters fromEnvironment() throws NumberFormatException, UnknownHostException
     {
         return new ServerParameters(EnvParams.get("HOSTNAME", "unknown"),
+                                    EnvParams.get("SERVER_ADDRESS", InetAddress.getLocalHost().getHostAddress()),
                                     Integer.parseInt(EnvParams.get("SERVER_PORT", 8080)),
                                     EnvParams.get("SERVER_FUNCTION", "unknown"),
                                     EnvParams.get("REGISTRY_HOST", "sd-registry"),
@@ -87,18 +110,24 @@ public class ServerParameters
     {
         protected ServerParameters instance;
 
-        public ServerParametersBuilder()
+        public ServerParametersBuilder() throws NumberFormatException, UnknownHostException
         {
             this.instance = ServerParameters.fromEnvironment();
         }
 
-        public ServerParametersBuilder(String serverHostname,
+        public ServerParametersBuilder(ServerParameters oldInstance)
+        {
+            this.instance = new ServerParameters(oldInstance);
+        }
+
+        public ServerParametersBuilder(String serverPodname,
+                                       String serverAddress,
                                        int serverPort,
                                        String function,
                                        String registryHost,
                                        int registryPort)
         {
-            this.instance = new ServerParameters(serverHostname, serverPort, function, registryHost, registryPort);
+            this.instance = new ServerParameters(serverPodname, serverAddress, serverPort, function, registryHost, registryPort);
         }
 
         public ServerParameters build()
@@ -108,15 +137,21 @@ public class ServerParameters
             return result;
         }
 
-        public ServerParametersBuilder withServerHostname(String serverHostname)
+        public ServerParametersBuilder withServerPodname(String serverPodname)
         {
-            this.instance.serverHostname = serverHostname;
+            this.instance.serverPodname = serverPodname;
             return this;
         }
 
-        public ServerParametersBuilder withServerPort(int port)
+        public ServerParametersBuilder withServerAddress(String serverAddress)
         {
-            this.instance.serverPort = port;
+            this.instance.serverAddress = serverAddress;
+            return this;
+        }
+
+        public ServerParametersBuilder withServerPort(int serverPort)
+        {
+            this.instance.serverPort = serverPort;
             return this;
         }
 
@@ -126,15 +161,15 @@ public class ServerParameters
             return this;
         }
 
-        public ServerParametersBuilder withRegistryHost(String host)
+        public ServerParametersBuilder withRegistryHost(String registryHost)
         {
-            this.instance.registryHost = host;
+            this.instance.registryHost = registryHost;
             return this;
         }
 
-        public ServerParametersBuilder withRegistryPort(int port)
+        public ServerParametersBuilder withRegistryPort(int registryPort)
         {
-            this.instance.registryPort = port;
+            this.instance.registryPort = registryPort;
             return this;
         }
     }

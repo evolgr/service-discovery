@@ -1,6 +1,5 @@
 package com.intracom.server;
 
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -60,21 +59,19 @@ public class ChatHandler
                                                                DUMMY_MESSAGE_12);
 
     private final WebServer server;
-    private final Message dummyMessage;
+    public static final Message dummyMessage = new MessageBuilder().withId(0L) //
+                                                                   .withMessage(DUMMY_MSG_0) //
+                                                                   .withOwner(DUMMY_USER) //
+                                                                   .withRecipient(false) //
+                                                                   .withUser(DUMMY_USER) //
+                                                                   .build();
 
     public ChatHandler(ServerParameters params) throws UnknownHostException
     {
         this.server = WebServer.builder() // create new webserver
-                               .withHost(InetAddress.getLocalHost().getHostAddress()) // set current ip address
+                               .withHost(params.getServerAddress()) // set current ip address
                                .withPort(params.getServerPort()) // use port from input parameters
                                .build(params.getVertx()); // build new webserver using common Vert.x Core API entry point
-
-        this.dummyMessage = new MessageBuilder().withId(0L) //
-                                                .withMessage(DUMMY_MSG_0) //
-                                                .withOwner(DUMMY_USER) //
-                                                .withRecipient(false) //
-                                                .withUser(DUMMY_USER) //
-                                                .build();
 
         // configure web server routers
         this.server.configureRouter(router -> router.get(CHAT_MESSAGES_URI.getPath()) //

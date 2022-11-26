@@ -78,7 +78,6 @@ public class WebServer
 
         // Enable HTTP tracing, if configured in builder
         if (builder.httpTracing)
-
         {
             final var loggerHandler = LoggerHandler.create(LoggerFormat.SHORT);
             this.configureRouter(r -> r.route().handler(loggerHandler));

@@ -39,8 +39,6 @@ public class RequestHandler
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
     private static final ObjectMapper json = Jackson.om();
     private static final URI CHAT_MESSAGES_URI = URI.create("/chat/messages");
-    private static final String REGISTRY_HOST = "sd-registry";
-    private static final int REGISTRY_PORT = 8080;
     private static final URI REGISTRY_URI = URI.create("/registrations");
 
     public RequestHandler(WebServer server,
@@ -104,11 +102,11 @@ public class RequestHandler
                             else if (cr.statusCode() == HttpResponseStatus.FOUND.code())
                             {
                                 var serviceRegistry = json.readValue(cr.bodyAsString(), ServiceRegistry.class);
-                                log.error("Service registry response {}", serviceRegistry);
+                                log.info("Service registry response {}", serviceRegistry);
 
                                 // find best service
                                 var selectedService = this.findService(serviceRegistry.getServices());
-                                log.error("Selected service: {}", selectedService);
+                                log.info("Selected service: {}", selectedService);
 
                                 if (selectedService == null)
                                 {
@@ -146,7 +144,7 @@ public class RequestHandler
             }
             catch (JsonMappingException e)
             {
-                log.error("Request data contains invalid format");
+                log.error("Request data contains invalid format", e);
                 routingContext.response() // create response object
                               .setStatusCode(HttpResponseStatus.BAD_REQUEST.code()) // set response code 400
                               .end(); // complete with response action
