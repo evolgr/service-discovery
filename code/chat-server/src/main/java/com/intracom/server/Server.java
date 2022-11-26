@@ -6,12 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.intracom.common.web.TerminateHook;
-import com.intracom.common.web.VertxBuilder;
 import com.intracom.server.ServerParameters.ServerParametersBuilder;
 
 import io.reactivex.Completable;
 import io.reactivex.functions.Predicate;
-import io.vertx.reactivex.core.Vertx;
 
 public class Server
 {
@@ -19,7 +17,6 @@ public class Server
     private final RegistrationHandler registrationHandler;
     private final ChatHandler chatHandler;
     private final ServerParameters params;
-    private final Vertx vertx = new VertxBuilder().build();
 
     public Server(ServerParameters params) throws UnknownHostException
     {
