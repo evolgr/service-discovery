@@ -27,7 +27,7 @@ public class Registrations
         // empty constructor
     }
 
-    public ConcurrentHashMap<String, List<Service>> getFunctios()
+    public ConcurrentHashMap<String, List<Service>> getFunctions()
     {
         return this.functions;
     }

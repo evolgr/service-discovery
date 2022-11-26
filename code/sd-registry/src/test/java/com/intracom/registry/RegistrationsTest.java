@@ -34,7 +34,7 @@ public class RegistrationsTest
     @AfterMethod
     public void afterMethod()
     {
-        var functions = this.registrations.getFunctios();
+        var functions = this.registrations.getFunctions();
         if (!functions.isEmpty())
             this.registrations.clearFunctions();
     }
@@ -42,13 +42,13 @@ public class RegistrationsTest
     @Test
     public void addRegistrationTest()
     {
-        var functions = this.registrations.getFunctios();
+        var functions = this.registrations.getFunctions();
         assertTrue(functions.isEmpty(), "Functions unexpectedly not empty");
 
         var serviceRegistry = this.getServiceRegistry(null);
         assertTrue(this.registrations.addRegistration(serviceRegistry), "Failed to add registration");
 
-        functions = this.registrations.getFunctios();
+        functions = this.registrations.getFunctions();
         assertFalse(functions.isEmpty(), "Functions unexpectedly empty");
 
         List<Service> extractedServices = this.registrations.getRegistrations("test-function");
@@ -61,13 +61,13 @@ public class RegistrationsTest
     @Test
     public void getRegistrationsTest()
     {
-        var functions = this.registrations.getFunctios();
+        var functions = this.registrations.getFunctions();
         assertTrue(functions.isEmpty(), "Functions unexpectedly not empty");
 
         var serviceRegistry = this.getServiceRegistry(null);
         this.registrations.addRegistration(serviceRegistry);
 
-        functions = this.registrations.getFunctios();
+        functions = this.registrations.getFunctions();
         assertFalse(functions.isEmpty(), "Functions unexpectedly empty");
 
         // simulate change of service

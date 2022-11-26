@@ -119,7 +119,7 @@ public class RegistrationExpirationHandler
     public Completable start()
     {
         return Completable.fromAction(() -> this.disposable = this.timer.doOnNext(t -> log.info("Registrations timeout triggered"))
-                                                                        .filter(t -> !this.registrations.getFunctios().isEmpty())
+                                                                        .filter(t -> !this.registrations.getFunctions().isEmpty())
                                                                         .concatMap(t -> Flowable.fromCallable(() ->
                                                                         {
                                                                             return this.getPods();
