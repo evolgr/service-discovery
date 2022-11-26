@@ -18,12 +18,13 @@ public class Registry
     private final RegistrationHandler handler;
     private final Registrations registrations;
     private final RegistryParameters params;
-    
+    private final RegistrationExpirationHandler expirationHandler;
 
     public Registry(RegistryParameters params) throws URISyntaxException, IOException
     {
         this.params = params;
-        this.registrations = new Registrations(this.params);
+        this.registrations = new Registrations();
+        this.expirationHandler = new RegistrationExpirationHandler(this.params, this.registrations);
         this.handler = new RegistrationHandler(this.params, this.registrations);
     }
 
@@ -31,7 +32,7 @@ public class Registry
     {
         return Completable.complete() //
                           .andThen(this.handler.start())
-                          .andThen(this.registrations.run())
+                          .andThen(this.expirationHandler.restart())
                           .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
                           .andThen(this.stop());
     }
@@ -46,14 +47,21 @@ public class Registry
 
         return Completable.complete() //
                           .doOnSubscribe(disposable -> log.info("Initiated gracefull shutdown"))
-                          .andThen(this.registrations.stop().onErrorComplete(logError))
                           .andThen(this.handler.stop().onErrorComplete(logError))
+                          .andThen(Completable.fromAction(() ->
+                          {
+                              if (this.expirationHandler.getDisposable() != null && !this.expirationHandler.getDisposable().isDisposed())
+                                  this.expirationHandler.stop();
+                              else
+                                  Completable.complete();
+                          }))
                           .andThen(this.params.getVertx().rxClose().onErrorComplete(logError));
     }
 
-	public static void main(String args[]) throws InterruptedException {
-	    
-	    var terminateCode = 0;
+    public static void main(String args[]) throws InterruptedException
+    {
+
+        var terminateCode = 0;
         log.info("Starting Registry");
 
         try (var termination = new TerminateHook())
@@ -67,9 +75,9 @@ public class Registry
             log.error("Registry terminated abnormally", e);
             terminateCode = 1;
         }
-        
+
         log.info("Registry stopped.");
         System.exit(terminateCode);
-	    
-	}
+
+    }
 }

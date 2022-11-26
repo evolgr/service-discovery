@@ -1,15 +1,9 @@
 package com.intracom.registry;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -18,15 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.intracom.model.Service;
 import com.intracom.model.ServiceRegistry;
 
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.util.Config;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Registration data used to store all services for all available functions
@@ -35,38 +21,20 @@ public class Registrations
 {
     private static final Logger log = LoggerFactory.getLogger(Registrations.class);
     private ConcurrentHashMap<String, List<Service>> functions = new ConcurrentHashMap<>();
-    private RegistryParameters params;
-    private CoreV1Api coreV1Api;
-    private final RegistrationExpirationHandler expirationHandler;
 
-    public Registrations(RegistryParameters params) throws URISyntaxException, IOException
+    public Registrations()
     {
-        this.params = params;
-
-        // kubernetes
-        ApiClient apiClient = Config.fromCluster();
-        apiClient.setReadTimeout(0); // infinite timeout
-        apiClient.setBasePath(this.normalize(apiClient.getBasePath()));
-
-        // set default configuration for the api client
-        Configuration.setDefaultApiClient(apiClient);
-        this.coreV1Api = new CoreV1Api(apiClient);
-
-        // registration expiration handler
-        this.expirationHandler = new RegistrationExpirationHandler(this.params.getExpirationPeriod());
+        // empty constructor
     }
 
-    public Completable run()
+    public ConcurrentHashMap<String, List<Service>> getFunctios()
     {
-        return Completable.complete() //
-                          .andThen(this.expirationHandler.start());
+        return this.functions;
     }
 
-    public Completable stop()
+    public void clearFunctions()
     {
-        if (this.expirationHandler.disposable != null && !this.expirationHandler.disposable.isDisposed())
-            return this.expirationHandler.stop();
-        return Completable.complete();
+        this.functions.clear();
     }
 
     /**
@@ -114,10 +82,15 @@ public class Registrations
 
         // check if multiple services added at once
         if (inServices.isPresent())
+        {
+            inServicesData = inServices.get();
             if (inServicesData.isEmpty() || inServicesData.size() > 1)
-                log.error("Registration contains none or more than 1 services.");
+                log.error("Registration contains none {} or more than 1 services {}.", //
+                          inServicesData.isEmpty(), //
+                          inServicesData.size());
             else
-                inServicesData = inServices.get();
+                inServiceData = inServicesData.get(0);
+        }
         else
             log.info("Registration does not contain any services");
         return inServiceData;
@@ -195,33 +168,7 @@ public class Registrations
         return result;
     }
 
-    private List<String> getPods()
-    {
-        try
-        {
-            return this.coreV1Api.listNamespacedPod(this.params.getNamespace(), // namespace
-                                                    null, // pretty
-                                                    false, // allow watch bookmarks
-                                                    null, // _continue
-                                                    null, // field selector
-                                                    null, // label selector
-                                                    0, // limit integer value
-                                                    null, // resource version
-                                                    null, // resource version watch
-                                                    10, // timeout seconds
-                                                    false) // watch
-                                 .getItems()
-                                 .stream()
-                                 .map(pod -> pod.getMetadata().getName())
-                                 .collect(Collectors.toList());
-        }
-        catch (ApiException e)
-        {
-            throw new RuntimeException("Fetching of the list of namespaced pods returned error", e);
-        }
-    }
-
-    private Completable applyExpiration(List<String> pods)
+    public Completable applyExpiration(List<String> pods)
     {
         return Completable.fromAction(() ->
         {
@@ -238,70 +185,5 @@ public class Registrations
                          functions.put(functionName, newServiceList);
                      });
         });
-    }
-
-    private String normalize(String basePath) throws URISyntaxException, UnknownHostException
-    {
-        var oldUri = new URI(basePath);
-
-        var normalizedAddress = InetAddress.getByName(oldUri.getHost()).getHostAddress();
-
-        var normalizedUri = new URI(oldUri.getScheme(),
-                                    oldUri.getUserInfo(),
-                                    normalizedAddress,
-                                    oldUri.getPort(),
-                                    oldUri.getPath(),
-                                    oldUri.getQuery(),
-                                    oldUri.getFragment());
-
-        log.info("Normalized URI: {}", normalizedUri);
-
-        return normalizedUri.toString();
-    }
-
-    private class RegistrationExpirationHandler
-    {
-        private final Long timeout;
-        private final Flowable<Long> timer;
-        private Disposable disposable;
-
-        public RegistrationExpirationHandler(Long timeout)
-        {
-            this.timeout = timeout;
-            this.timer = Flowable.interval(timeout - 10L, TimeUnit.SECONDS, Schedulers.io());
-        }
-
-        private Completable start()
-        {
-            return Completable.fromAction(() -> this.disposable = this.timer.doOnNext(timeout -> log.info("Registrations timeout triggered"))
-                                                                            .filter(timeout -> !functions.isEmpty())
-                                                                            .concatMap(timeout -> Flowable.fromCallable(() ->
-                                                                            {
-                                                                                return getPods();
-                                                                            }))
-                                                                            .concatMapCompletable(pods -> applyExpiration(pods))
-                                                                            .onErrorComplete(InterruptedException.class::isInstance)
-                                                                            .retry(3)
-                                                                            .doOnError(e -> log.error("Error occured during timeout of registrations", e))
-                                                                            .doOnSubscribe(s -> log.debug("Started registration timeout engine"))
-                                                                            .doOnTerminate(() -> log.debug("Stopped registration timeout engine"))
-                                                                            .subscribe());
-        }
-
-        private Completable stop()
-        {
-            return Completable.fromAction(() -> this.disposable.dispose());
-        }
-
-        private Completable restart()
-        {
-            return Completable.defer(() ->
-            {
-                if (this.disposable != null)
-                    return this.stop().andThen(this.start());
-                else
-                    return this.start();
-            });
-        }
     }
 }

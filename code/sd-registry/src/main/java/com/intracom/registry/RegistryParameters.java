@@ -128,5 +128,11 @@ public class RegistryParameters
             this.instance.namespace = namespace;
             return this;
         }
+
+        public RegistryParametersBuilder withExpiration(int expirationPeriod)
+        {
+            this.instance.expirationPeriod = expirationPeriod;
+            return this;
+        }
     }
 }
