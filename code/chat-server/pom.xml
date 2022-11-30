@@ -18,7 +18,7 @@
 		<!-- Redefine to gain access to parent POM dir -->
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<!-- The main class in produced jar,used by shade plugin -->
-		<mainClass>com.intracom.server</mainClass>
+		<mainClass>com.intracom.chat.Server</mainClass>
 		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 

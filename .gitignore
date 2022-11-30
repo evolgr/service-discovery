@@ -26,6 +26,7 @@ hs_err_pid*
 .classpath
 .project
 .settings/
+.output/
 code/*/.settings/
 dependency-reduced-pom.xml
 target/

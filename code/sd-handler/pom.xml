@@ -11,14 +11,13 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.intracom</groupId>
 	<artifactId>sd-handler</artifactId>
 
 	<properties>
 		<!-- Redefine to gain access to parent POM dir -->
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<!-- The main class in produced jar,used by shade plugin -->
-		<mainClass>com.intracom.handler</mainClass>
+		<mainClass>com.intracom.sd.Handler</mainClass>
 		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 

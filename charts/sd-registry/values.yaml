@@ -1,4 +1,4 @@
-# chat-server configuration 
+# service-registry configuration 
 
 # global:
   # pullSecret: ""
@@ -8,9 +8,9 @@
 
 imageCredentials:
    # pullSecret:
-  chatserver:
+  serviceregistry:
     image:
-      name: chat-server
+      name: sd-registry
       tag: 0.0.1
     repoPath: "evolgr"
     registry:
@@ -21,14 +21,14 @@ updateStrategy:
   type: RollingUpdate
 
 service:
-  chatserver:
-    name: "chat-server"
-    replicas: 5
+  serviceregistry:
+    name: "sd-registry"
+    replicas: 1
     port: "8080"
     targetPort: "8080"
 
 resources:
-  chatserver:
+  serviceregistry:
     requests:
       memory: "50Mi"
       cpu: "500m"

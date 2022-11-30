@@ -1,4 +1,0 @@
-apiVersion: v1
-description: Performance Management Metrics - Prometheus. (c) Intracom Telecom SA 2022.
-name: prometheus
-version: 1.0.0-0

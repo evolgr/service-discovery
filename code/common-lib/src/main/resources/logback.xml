@@ -1,12 +1,21 @@
 <configuration>
+	<!-- Enable JMX control -->
+	<jmxConfigurator />
+
+	<!-- Stop output INFO at start -->
+	<statusListener
+		class="ch.qos.logback.core.status.NopStatusListener" />
+
 	<appender name="STDOUT"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n
+			<pattern>{"timestamp":"%date{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}","severity":"%level","message": "%thread | %logger{30] | %L | %method | %msg"}%n
 			</pattern>
 		</encoder>
 	</appender>
-	<root level="info">
+
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
+
 </configuration>

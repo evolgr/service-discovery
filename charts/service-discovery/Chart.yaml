@@ -1,4 +1,4 @@
 apiVersion: v1
 description: Service Discovery Integration Chart. (c) Intracom Telecom SA 2022.
 name: service-discovery
-version: 1.0.0-0
+version: 0.0.1

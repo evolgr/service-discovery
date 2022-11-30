@@ -32,8 +32,6 @@ spec:
         image: {{ .Values.imageCredentials.chatserver.registry.url }}/{{ .Values.imageCredentials.chatserver.repoPath }}/{{ .Values.imageCredentials.chatserver.image.name }}:{{ .Values.imageCredentials.chatserver.image.tag }}
         imagePullPolicy: {{ .Values.imageCredentials.chatserver.registry.imagePullPolicy }}
         env:
-          - name: JVM_PARAMS
-            value: {{ .Values.jvm.parameters.chatserver | quote}} 
           - name: NAMESPACE
             value: {{ .Release.Namespace | quote }}
           - name: INSTANCE_NAME

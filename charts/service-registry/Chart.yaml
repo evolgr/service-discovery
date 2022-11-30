@@ -1,4 +1,0 @@
-apiVersion: v1
-description: Service Registry. (c) Intracom Telecom SA 2022.
-name: sd-registry
-version: 1.0

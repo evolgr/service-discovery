@@ -8,14 +8,13 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.intracom</groupId>
 	<artifactId>sd-registry</artifactId>
 
 	<properties>
 		<!-- Redefine to gain access to parent POM dir -->
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<!-- The main class in produced jar,used by shade plugin -->
-		<mainClass>com.intracom.registry</mainClass>
+		<mainClass>com.intracom.sd.Registry</mainClass>
 		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
