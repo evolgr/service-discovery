@@ -17,9 +17,12 @@ public class Server
     private final RegistrationHandler registrationHandler;
     private final ChatHandler chatHandler;
     private final ServerParameters params;
+    private final TerminateHook termination;
 
-    public Server(ServerParameters params) throws UnknownHostException
+    public Server(TerminateHook termination,
+                  ServerParameters params) throws UnknownHostException
     {
+        this.termination = termination;
         this.params = params;
         log.info("Starting chat service with parameters: {}", this.params);
 
@@ -32,6 +35,7 @@ public class Server
         return Completable.complete() //
                           .andThen(this.registrationHandler.start())
                           .andThen(this.chatHandler.start())
+                          .andThen(this.termination.get())
                           .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
                           .andThen(this.stop());
     }
@@ -59,7 +63,7 @@ public class Server
         try (var termination = new TerminateHook())
         {
             var params = new ServerParametersBuilder().build();
-            var server = new Server(params);
+            var server = new Server(termination, params);
             server.run().blockingAwait();
         }
         catch (Exception e)

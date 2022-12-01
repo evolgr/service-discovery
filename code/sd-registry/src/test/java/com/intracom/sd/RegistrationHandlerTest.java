@@ -63,7 +63,7 @@ public class RegistrationHandlerTest
         this.params = new RegistryParametersBuilder().withHost("my-registry-service") //
                                                      .withPort(REGISTRY_SERVER_LOCAL_PORT) //
                                                      .withNamespace("best") //
-                                                     .withExpiration(60) //
+                                                     .withCheckPeriod(60L) //
                                                      .withServiceAddress(REGISTRY_SERVER_LOCAL_HOST) //
                                                      .build();
         this.registrations = new Registrations();

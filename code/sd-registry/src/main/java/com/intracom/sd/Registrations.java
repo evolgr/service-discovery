@@ -108,8 +108,8 @@ public class Registrations
 
             // get existing service that matches input service data
             Service existingService = existingServices.stream() // stream existing services
-                                                      .filter(service -> service.equals(inService)) // keep only services that match
-                                                      .findAny() // find any service that match
+                                                      .filter(service -> service.getName().equals(inService.getName())) // keep only services that match
+                                                      .findFirst() // find any service that match
                                                       .orElse(null); // if none services match return null
 
             // check if input service match
@@ -173,18 +173,25 @@ public class Registrations
         return Completable.fromAction(() ->
         {
             var registrations = functions.entrySet();
-            log.info("Registrations identified {}", registrations.size());
+            if (!registrations.isEmpty())
+            {
+                log.info("Registrations identified {}", registrations.size());
 
-            registrations.stream() //
-                         .forEach(func ->
-                         {
-                             var functionName = func.getKey();
-                             var newServiceList = func.getValue() //
-                                                      .stream() //
-                                                      .filter(service -> pods.contains(service.getName()))
-                                                      .collect(Collectors.toList());
-                             functions.put(functionName, newServiceList);
-                         });
+                registrations.stream() //
+                             .forEach(func ->
+                             {
+                                 var functionName = func.getKey();
+                                 var services = func.getValue();
+                                 log.info("Current function {} services {}", functionName, services);
+
+                                 var newServiceList = services.stream() //
+                                                              .filter(service -> pods.contains(service.getName()))
+                                                              .collect(Collectors.toList());
+                                 log.info("New function {} services {}", functionName, newServiceList);
+
+                                 functions.put(functionName, newServiceList);
+                             });
+            }
         });
     }
 }

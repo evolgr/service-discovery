@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ template "service-registry.name" . }}-{{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{- include "service-registry.labels" . | indent 4 }}
+    app: {{ template "service-registry.name" . }}
+  annotations:
+{{- include "service-registry.helm-annotations" . | indent 4 }}
+  namespace: {{ .Release.Namespace }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "service-registry.name" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ template "service-registry.name" . }}-{{ .Release.Namespace }}
+  apiGroup: rbac.authorization.k8s.io

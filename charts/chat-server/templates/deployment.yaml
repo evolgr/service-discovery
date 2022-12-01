@@ -38,6 +38,8 @@ spec:
             value: {{ .Release.Name | quote}} 
           - name: TZ
             value: {{ include "chat-server.timezone" . }}
+          - name: SERVER_FUNCTION
+            value: {{ .Values.serviceDiscovery.function | quote}}
         resources:
           requests:
             cpu: {{ .Values.resources.chatserver.requests.cpu | quote }}

@@ -53,7 +53,7 @@ public class RegistrationHandler
                                                 this.params.getRegistryHost(), //
                                                 REGISTRY_URI.getPath())
                                            .ssl(false)
-                                           .rxSendJson(new JsonObject(json.writeValueAsString(this.getRegistrationData())))
+                                           .rxSendJson(new JsonObject(json.writeValueAsString(this.generateData())))
                                            .doOnError(t -> log.error("Something went wrong during registration of service: {}", t.getMessage()))
                                            .doOnSuccess(resp -> log.debug("Registration response with statusCode: {}, statudMessage: {}, body: {}",
                                                                           resp.statusCode(),
@@ -132,7 +132,7 @@ public class RegistrationHandler
         });
     }
 
-    private ServiceRegistry getRegistrationData() throws UnknownHostException
+    private ServiceRegistry generateData() throws UnknownHostException
     {
         Service currentService = new ServiceBuilder().withHost(this.params.getServiceAddress()) // service ip address
                                                      .withName(this.params.getServerPodname()) // pod/service name
@@ -145,7 +145,7 @@ public class RegistrationHandler
         ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().withFunction(this.params.getFunction()) //
                                                                       .withServices(services) //
                                                                       .build();
-        log.info("Registration data {}", serviceRegistry);
+        log.info("Updating registration data with {}", serviceRegistry);
         return serviceRegistry;
     }
 

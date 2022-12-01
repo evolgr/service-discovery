@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.intracom.common.web.TerminateHook;
 import com.intracom.sd.RegistryParameters.RegistryParametersBuilder;
 
+import io.kubernetes.client.openapi.ApiException;
 import io.reactivex.Completable;
 import io.reactivex.functions.Predicate;
 
@@ -18,26 +19,27 @@ public class Registry
     private final RegistrationHandler handler;
     private final Registrations registrations;
     private final RegistryParameters params;
-    private final RegistrationExpirationHandler expirationHandler;
+//    private final RegistrationExpirationHandler expirationHandler;
+    private final TerminateHook termination;
 
-    public Registry(RegistryParameters params) throws URISyntaxException, IOException
+    public Registry(TerminateHook termination,
+                    RegistryParameters params) throws URISyntaxException, IOException, ApiException
     {
+        this.termination = termination;
         this.params = params;
         this.registrations = new Registrations();
-        this.expirationHandler = new RegistrationExpirationHandler(this.params, this.registrations);
+//        this.expirationHandler = new RegistrationExpirationHandler(this.params, this.registrations);
         this.handler = new RegistrationHandler(this.params, this.registrations);
     }
 
     private Completable run()
     {
         return Completable.complete() //
-                          .andThen(this.expirationHandler.restart() //
-                                                         .repeat() //
-                                                         .doOnSubscribe(s -> log.info("Starting expirationHandler")) //
-                                                         .doOnComplete(() -> log.info("Shutting down of expirationHandler")))
                           .andThen(this.handler.start())
-                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
-                          .andThen(this.stop());
+//                          .andThen(this.expirationHandler.start())
+                          .andThen(this.termination.get())
+                          .andThen(this.stop())
+                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)));
     }
 
     private Completable stop()
@@ -50,14 +52,14 @@ public class Registry
 
         return Completable.complete() //
                           .doOnSubscribe(disposable -> log.info("Initiated gracefull shutdown"))
+//                          .andThen(Completable.fromAction(() ->
+//                          {
+//                              if (this.expirationHandler.getDisposable() != null && !this.expirationHandler.getDisposable().isDisposed())
+//                                  this.expirationHandler.stop();
+//                              else
+//                                  Completable.complete();
+//                          }))
                           .andThen(this.handler.stop().onErrorComplete(logError))
-                          .andThen(Completable.fromAction(() ->
-                          {
-                              if (this.expirationHandler.getDisposable() != null && !this.expirationHandler.getDisposable().isDisposed())
-                                  this.expirationHandler.stop();
-                              else
-                                  Completable.complete();
-                          }))
                           .andThen(this.params.getVertx().rxClose().onErrorComplete(logError));
     }
 
@@ -72,7 +74,7 @@ public class Registry
             var params = new RegistryParametersBuilder().build();
             log.info("Starting service discovery registry service with parameters: {}", params);
 
-            var registry = new Registry(params);
+            var registry = new Registry(termination, params);
             registry.run().blockingAwait();
         }
         catch (Exception e)

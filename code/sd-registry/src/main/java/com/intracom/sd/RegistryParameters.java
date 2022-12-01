@@ -18,19 +18,19 @@ public class RegistryParameters
     private String host;
     private int port;
     private String namespace;
-    private long expirationPeriod;
+    private long checkPeriod;
     private String serviceAddress;
 
     private RegistryParameters(String host,
                                int port,
                                String namespace,
-                               long expirationPeriod,
+                               long checkPeriod,
                                String serviceAddress)
     {
         this.host = host;
         this.port = port;
         this.namespace = namespace;
-        this.expirationPeriod = expirationPeriod;
+        this.checkPeriod = checkPeriod;
         this.serviceAddress = serviceAddress;
     }
 
@@ -54,9 +54,9 @@ public class RegistryParameters
         return this.namespace;
     }
 
-    public long getExpirationPeriod()
+    public long getCheckPeriod()
     {
-        return this.expirationPeriod;
+        return this.checkPeriod;
     }
 
     public String getServiceAddress()
@@ -71,7 +71,7 @@ public class RegistryParameters
         parameters.put("Registy host", this.host);
         parameters.put("Registry port", this.port);
         parameters.put("Namespace", this.namespace);
-        parameters.put("Registrations expiration period", this.expirationPeriod);
+        parameters.put("Registrations check period", this.checkPeriod);
         parameters.put("Service address", serviceAddress);
         return parameters.encode();
     }
@@ -81,7 +81,7 @@ public class RegistryParameters
         return new RegistryParameters(EnvParams.get("REGISTRY_HOSTNAME", "sd-registry"),
                                       Integer.parseInt(EnvParams.get("REGISTRY_PORT", "8080")),
                                       EnvParams.get("NAMESPACE", "best"),
-                                      Long.parseLong(EnvParams.get("EXPIRATION_PERIOD", "60")),
+                                      Long.parseLong(EnvParams.get("CHECK_PERIOD", "60")),
                                       EnvParams.get("SERVICE_ADDRESS", InetAddress.getLocalHost().getHostAddress()));
     }
 
@@ -97,13 +97,13 @@ public class RegistryParameters
         public RegistryParametersBuilder(String host,
                                          int port,
                                          String namespace,
-                                         long expirationPeriod,
+                                         long checkPeriod,
                                          String serviceAddress)
         {
             this.instance = new RegistryParameters(host, //
                                                    port, //
                                                    namespace, //
-                                                   expirationPeriod, //
+                                                   checkPeriod, //
                                                    serviceAddress);
         }
 
@@ -132,9 +132,9 @@ public class RegistryParameters
             return this;
         }
 
-        public RegistryParametersBuilder withExpiration(int expirationPeriod)
+        public RegistryParametersBuilder withCheckPeriod(long checkPeriod)
         {
-            this.instance.expirationPeriod = expirationPeriod;
+            this.instance.checkPeriod = checkPeriod;
             return this;
         }
 

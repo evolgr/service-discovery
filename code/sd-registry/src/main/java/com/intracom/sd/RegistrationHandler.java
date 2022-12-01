@@ -55,8 +55,7 @@ public class RegistrationHandler
     {
         return Completable.complete() //
                           .andThen(this.server.startListener()) //
-                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
-                          .doOnComplete(() -> log.info("Registration handler completed.."));
+                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)));
     }
 
     public Completable stop()
@@ -156,14 +155,14 @@ public class RegistrationHandler
             registrations.clearFunctions();
             if (registrations.getFunctions().isEmpty())
             {
-                log.error("Successfully delete all registered functions");
+                log.error("All registrationed deleted successfully");
                 routingContext.response() // create response object
                               .setStatusCode(HttpResponseStatus.OK.code()) // set response code 200
                               .end(); // complete with response action
             }
             else
             {
-                log.error("Failed to registered service");
+                log.error("Failed to cleanup all registrations");
                 routingContext.response() // create response object
                               .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()) // set response code 500
                               .end(); // complete with response action

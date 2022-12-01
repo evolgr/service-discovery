@@ -10,7 +10,7 @@ metadata:
   annotations:
 {{- include "service-discovery-handler.helm-annotations" . | indent 4 }}
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - protocol: TCP
     port: {{ .Values.service.sdhandler.port }}

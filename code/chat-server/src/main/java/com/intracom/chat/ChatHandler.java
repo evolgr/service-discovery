@@ -59,12 +59,12 @@ public class ChatHandler
                                                                DUMMY_MESSAGE_12);
 
     private final WebServer server;
-    public static final Message dummyMessage = new MessageBuilder().withId(0L) //
-                                                                   .withMessage(DUMMY_MSG_0) //
-                                                                   .withOwner(DUMMY_USER) //
-                                                                   .withRecipient(false) //
-                                                                   .withUser(DUMMY_USER) //
-                                                                   .build();
+    public static final Message DUMMY_MESSAGE = new MessageBuilder().withId(0L) //
+                                                                    .withMessage(DUMMY_MSG_0) //
+                                                                    .withOwner(DUMMY_USER) //
+                                                                    .withRecipient(false) //
+                                                                    .withUser(DUMMY_USER) //
+                                                                    .build();
 
     public ChatHandler(ServerParameters params) throws UnknownHostException
     {
@@ -107,12 +107,12 @@ public class ChatHandler
                 Request request = json.readValue(buffer.toJsonObject().toString(), Request.class);
                 log.info("Request data: {}", request);
 
-                Message reply = new MessageBuilder(this.dummyMessage).withId(this.getRandomId())
-                                                                     .withMessage(this.getRandomMessage())
-                                                                     .withOwner(request.getUser())
-                                                                     .withOwner(request.getUser())
-                                                                     .withRecipient(false)
-                                                                     .build();
+                Message reply = new MessageBuilder(DUMMY_MESSAGE).withId(this.getRandomId())
+                                                                 .withMessage(this.getRandomMessage())
+                                                                 .withOwner(request.getUser())
+                                                                 .withOwner(request.getUser())
+                                                                 .withRecipient(false)
+                                                                 .build();
 
                 routingContext.response() //
                               .setStatusCode(HttpResponseStatus.ACCEPTED.code())
