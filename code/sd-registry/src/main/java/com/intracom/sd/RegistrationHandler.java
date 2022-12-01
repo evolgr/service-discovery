@@ -93,9 +93,10 @@ public class RegistrationHandler
                 {
                     ServiceRegistry newServiceRegistry = new ServiceRegistryBuilder(serviceRegistry).withServices(registeredServices) //
                                                                                                     .build();
+                    log.info("Found registered services {}", newServiceRegistry);
 
                     routingContext.response() // create response object
-                                  .setStatusCode(HttpResponseStatus.OK.code()) // set response code 200
+                                  .setStatusCode(HttpResponseStatus.FOUND.code()) // set response code 302
                                   .end(json.registerModule(new JodaModule()) //
                                            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) //
                                            .writeValueAsString(newServiceRegistry)); // complete with response action

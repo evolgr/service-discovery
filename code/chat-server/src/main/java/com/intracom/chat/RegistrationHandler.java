@@ -23,6 +23,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
@@ -65,30 +66,19 @@ public class RegistrationHandler
     {
         return Completable.fromAction(() ->
         {
-            try
+            if (this.updater == null)
             {
-                while (true)
-                {
-                    if (this.updater == null)
-                    {
-                        this.updater = this.update()
-                                           .timeout(1500, TimeUnit.MILLISECONDS)
-                                           .doOnSubscribe(e -> log.debug("Updating registration."))
-                                           .doOnError(e -> log.debug("Updating registration failed. Cause: {}", e.toString()))
-                                           .onErrorReturn(t -> HttpResponseStatus.OK.code())
-                                           .repeatWhen(handler -> handler.delay(10, TimeUnit.SECONDS))
-                                           .ignoreElements()
-                                           .doOnSubscribe(d -> log.info("Started updating registration."))
-                                           .subscribe(() -> log.info("Stopped updating registration."),
-                                                      t -> log.error("Stopped updating registration. Cause: {}", t.toString()));
-
-                        TimeUnit.SECONDS.sleep(60L);
-                    }
-                }
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
+                this.updater = this.update()
+                                   .timeout(1500, TimeUnit.MILLISECONDS)
+                                   .subscribeOn(Schedulers.io())
+                                   .doOnSubscribe(e -> log.debug("Updating registration."))
+                                   .doOnError(e -> log.debug("Updating registration failed. Cause: {}", e.toString()))
+                                   .onErrorReturn(t -> HttpResponseStatus.OK.code())
+                                   .repeatWhen(handler -> handler.delay(60, TimeUnit.SECONDS))
+                                   .ignoreElements()
+                                   .doOnSubscribe(d -> log.info("Started updating registration."))
+                                   .subscribe(() -> log.info("Stopped updating registration."),
+                                              t -> log.error("Stopped updating registration. Cause: {}", t.toString()));
             }
         });
     }

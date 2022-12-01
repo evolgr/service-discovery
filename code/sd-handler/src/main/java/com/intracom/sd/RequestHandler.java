@@ -129,7 +129,13 @@ public class RequestHandler
                                                           .setStatusMessage(fwdResp.statusMessage()) // set response code message
                                                           .end(fwdResp.bodyAsString());
                                         }, // complete with response action
-                                                   t -> log.error("Error during the forward of request to backend service.", t));
+                                                   t ->
+                                                   {
+                                                       log.error("Error during the forward of request to backend service.", t);
+                                                       routingContext.response() // create response object
+                                                                     .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()) // set response code 500
+                                                                     .end(); // complete with response action
+                                                   });
                                 }
                             }
                             else

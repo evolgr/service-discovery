@@ -33,8 +33,8 @@ public class Server
     private Completable run()
     {
         return Completable.complete() //
-                          .andThen(this.registrationHandler.start())
                           .andThen(this.chatHandler.start())
+                          .andThen(this.registrationHandler.start())
                           .andThen(this.termination.get())
                           .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
                           .andThen(this.stop());
@@ -50,8 +50,8 @@ public class Server
 
         return Completable.complete() //
                           .doOnSubscribe(disposable -> log.info("Initiated gracefull shutdown"))
-                          .andThen(this.chatHandler.stop().onErrorComplete(logError))
                           .andThen(this.registrationHandler.stop().onErrorComplete(logError))
+                          .andThen(this.chatHandler.stop().onErrorComplete(logError))
                           .andThen(this.params.getVertx().rxClose().onErrorComplete(logError));
     }
 
