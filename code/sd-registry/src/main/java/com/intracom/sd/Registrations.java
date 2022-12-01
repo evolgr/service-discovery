@@ -61,9 +61,11 @@ public class Registrations
 
         // get input function name
         String inFunction = serviceRegistry.getFunction();
+        log.info("New registration for function {}", inFunction);
 
         // get input service data
         Service inService = this.getInService(serviceRegistry);
+        log.info("New registration for service {}", inService);
         if (inService == null)
             return result;
 
@@ -129,7 +131,7 @@ public class Registrations
         }
         else
         {
-            log.info("Exiting registration does not containe function {}", inFunction);
+            log.info("Existing registration does not contain function {}", inFunction);
             List<Service> newServices = new ArrayList<Service>();
             newServices.add(inService);
             this.functions.put(inFunction, newServices);

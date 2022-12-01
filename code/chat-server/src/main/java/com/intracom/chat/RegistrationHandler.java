@@ -118,7 +118,7 @@ public class RegistrationHandler
     {
         return this.put().map(resp ->
         {
-            if (resp.statusCode() == HttpResponseStatus.OK.code())
+            if (resp.statusCode() == HttpResponseStatus.CREATED.code())
             {
                 log.info("Service successfully registered");
                 return Completable.complete();

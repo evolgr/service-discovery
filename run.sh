@@ -69,9 +69,6 @@ deleteGeneratedFiles() {
 buildCode(){
 	cd ${scriptPath}
     mvn clean install
-    #\cp ${scriptPath}/target/chat-server.jar ${scriptPath}/code/chat-server/chat-server.jar
-    #\cp ${scriptPath}/target/sd-handler.jar ${scriptPath}/code/sd-handler/sd-handler.jar
-    #\cp ${scriptPath}/target/sd-registry.jar ${scriptPath}/code/sd-registry/sd-registry.jar
 	cd ${currentPath}
 }
 
@@ -156,14 +153,14 @@ packageIntegrationHelm() {
 undeploy() {
 	result=$(helm list -n $NS | grep $1 | wc -l)
 	if [ $result -eq 1 ]; then
-		helm uninstall $1 -n $NS
+		helm uninstall $1-${USER} -n $NS
 	else
 		echo "There are no helm charts with $1 release identefied"
 	fi
 }
 
 deploy() {
-	helm install $1 ${scriptPath}/.output/${1}-${VERSION}.tgz -n $NS --set image.${1}.tag=$2
+	helm install ${1}-${USER} ${scriptPath}/.output/${1}-${2}.tgz -n $NS
 }
 
 main(){
@@ -177,9 +174,10 @@ main(){
 	echo "======================================="
 	echo "Undeploy"
 	echo "======================================="
-    undeploy chat-server
-    undeploy sd-handler
-    undeploy sd-registry
+    # undeploy chat-server
+    # undeploy sd-handler
+    # undeploy sd-registry
+    undeploy service-discovery
 	echo "======================================="
 	echo "Building code"
 	echo "======================================="
@@ -212,7 +210,8 @@ main(){
     # deploy chat-server $VERSION
     # deploy sd-handler $VERSION
     # deploy sd-registry $VERSION
-    # echo =======================================
+    deploy service-discovery $VERSION
+    echo =======================================
 	echo "BEST Demo automatic Deploy complete"
 	echo "======================================="
 }

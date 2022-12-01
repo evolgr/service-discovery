@@ -131,7 +131,7 @@ public class RegistrationHandler
                 }
                 else
                 {
-                    log.error("Failed to registered service");
+                    log.error("Failed to register service");
                     routingContext.response() // create response object
                                   .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()) // set response code 500
                                   .end(); // complete with response action
