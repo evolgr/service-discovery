@@ -103,19 +103,19 @@ public class RegistrationExpirationHandler
 
     public Completable start()
     {
-        return Completable.fromAction(() -> this.disposable = this.timer.doOnNext(t -> log.info("Registrations timeout triggered"))
-                                                                        .filter(t -> !this.registrations.getFunctions().isEmpty())
-                                                                        .concatMap(t -> Flowable.fromCallable(() ->
+        log.info("Starting registration expiration handler");
+        return Completable.fromAction(() -> this.disposable = this.timer.doOnNext(t -> log.info("Registrations timeout triggered")) //
+                                                                        .filter(t ->
                                                                         {
-                                                                            return this.getPods();
-                                                                        }))
-                                                                        .concatMapCompletable(pods -> this.registrations.applyExpiration(pods))
-                                                                        .onErrorComplete(InterruptedException.class::isInstance)
-                                                                        .retry(3)
-                                                                        .doOnError(e -> log.error("Error occured during timeout of registrations", e))
-                                                                        .doOnSubscribe(s -> log.debug("Started registration timeout engine"))
-                                                                        .doOnTerminate(() -> log.debug("Stopped registration timeout engine"))
-                                                                        .subscribe());
+                                                                            var functions = this.registrations.getFunctions();
+                                                                            log.info("Functions and registered services {}", functions);
+                                                                            return !functions.isEmpty();
+                                                                        })
+                                                                        .concatMapCompletable(t -> this.registrations.applyExpiration(this.getPods()))
+                                                                        .doOnSubscribe(s -> log.debug("Starting removal of absent services from registrations"))
+                                                                        .doOnTerminate(() -> log.info("Terminating removal of absent services from registrations"))
+                                                                        .subscribe(() -> log.info("Started  registration timeout engine"),
+                                                                                   t -> log.error("Error starting registration timeout engine", t)));
     }
 
     public Completable stop()

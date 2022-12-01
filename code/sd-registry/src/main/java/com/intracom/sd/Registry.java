@@ -31,7 +31,10 @@ public class Registry
     private Completable run()
     {
         return Completable.complete() //
-                          .andThen(this.expirationHandler.restart())
+                          .andThen(this.expirationHandler.restart() //
+                                                         .repeat() //
+                                                         .doOnSubscribe(s -> log.info("Starting expirationHandler")) //
+                                                         .doOnComplete(() -> log.info("Shutting down of expirationHandler")))
                           .andThen(this.handler.start())
                           .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
                           .andThen(this.stop());
@@ -47,6 +50,7 @@ public class Registry
 
         return Completable.complete() //
                           .doOnSubscribe(disposable -> log.info("Initiated gracefull shutdown"))
+                          .andThen(this.handler.stop().onErrorComplete(logError))
                           .andThen(Completable.fromAction(() ->
                           {
                               if (this.expirationHandler.getDisposable() != null && !this.expirationHandler.getDisposable().isDisposed())
@@ -54,7 +58,6 @@ public class Registry
                               else
                                   Completable.complete();
                           }))
-                          .andThen(this.handler.stop().onErrorComplete(logError))
                           .andThen(this.params.getVertx().rxClose().onErrorComplete(logError));
     }
 

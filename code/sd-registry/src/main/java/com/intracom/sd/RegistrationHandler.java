@@ -47,13 +47,16 @@ public class RegistrationHandler
                                                     .handler(this::getRegisteredServices));
         this.server.configureRouter(router -> router.put(REGISTRY_URI.getPath()) //
                                                     .handler(this::registerServices));
+        this.server.configureRouter(router -> router.delete(REGISTRY_URI.getPath()) //
+                                                    .handler(this::deleteRegistrations));
     }
 
     public Completable start()
     {
         return Completable.complete() //
                           .andThen(this.server.startListener()) //
-                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)));
+                          .onErrorResumeNext(t -> this.stop().andThen(Completable.error(t)))
+                          .doOnComplete(() -> log.info("Registration handler completed.."));
     }
 
     public Completable stop()
@@ -140,6 +143,29 @@ public class RegistrationHandler
                 log.error("Registration request data with invalid format");
                 routingContext.response() // create response object
                               .setStatusCode(HttpResponseStatus.BAD_REQUEST.code()) // set response code 400
+                              .end(); // complete with response action
+            }
+        });
+    }
+
+    public void deleteRegistrations(RoutingContext routingContext)
+    {
+        routingContext.request().bodyHandler(buffer ->
+        {
+            log.info("Handling registration cleanup");
+            registrations.clearFunctions();
+            if (registrations.getFunctions().isEmpty())
+            {
+                log.error("Successfully delete all registered functions");
+                routingContext.response() // create response object
+                              .setStatusCode(HttpResponseStatus.OK.code()) // set response code 200
+                              .end(); // complete with response action
+            }
+            else
+            {
+                log.error("Failed to registered service");
+                routingContext.response() // create response object
+                              .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()) // set response code 500
                               .end(); // complete with response action
             }
         });

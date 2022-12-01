@@ -172,18 +172,19 @@ public class Registrations
     {
         return Completable.fromAction(() ->
         {
-            functions.entrySet() //
-                     .stream() //
-                     .forEach(func ->
-                     {
-                         var functionName = func.getKey();
-                         var serviceList = func.getValue();
+            var registrations = functions.entrySet();
+            log.info("Registrations identified {}", registrations.size());
 
-                         var newServiceList = serviceList.stream() //
-                                                         .filter(service -> pods.contains(service.getName()))
-                                                         .collect(Collectors.toList());
-                         functions.put(functionName, newServiceList);
-                     });
+            registrations.stream() //
+                         .forEach(func ->
+                         {
+                             var functionName = func.getKey();
+                             var newServiceList = func.getValue() //
+                                                      .stream() //
+                                                      .filter(service -> pods.contains(service.getName()))
+                                                      .collect(Collectors.toList());
+                             functions.put(functionName, newServiceList);
+                         });
         });
     }
 }
