@@ -1,0 +1,35 @@
+{
+	"title": "Message",
+	"description": "Definition of a message.",
+	"type": "object",
+	"properties": {
+		"id": {
+			"description": "An identifier uniquely identifying messages.",
+			"type": "integer"
+		},
+		"user": {
+			"description": "The message owner.",
+			"type": "string"
+		},
+		"message": {
+			"description": "The message data, min length 1 char and max length 160 chars ",
+			"type": "string",
+			"minLength": 1,
+			"maxLength": 160
+		},
+		"recipient": {
+			"description": "The indication if current user is recipient of message author.",
+			"type": "boolean"
+		},
+		"owner": {
+			"description": "The real owner if current user is not, NULL otherwise.",
+			"type": "string"
+		}
+	},
+	"required": [
+		"user",
+		"message",
+		"recipient"
+	],
+	"additionalProperties": false
+}

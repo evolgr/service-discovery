@@ -1,0 +1,44 @@
+# chat-server configuration 
+
+# global:
+  # pullSecret: ""
+  # registry:
+    # url: ""
+    # imagePullSecret: IfNotPresent
+
+imageCredentials:
+   # pullSecret:
+  chatserver:
+    image:
+      name: chat-server
+      tag: 0.0.1
+    repoPath: "evolgr"
+    registry:
+      url: "armdockerhub.rnd.ericsson.se" # overrides global registry url
+      imagePullPolicy: # overrides global image pull policy
+
+updateStrategy:
+  type: RollingUpdate
+
+service:
+  chatserver:
+    name: "chat-server"
+    replicas: 5
+    port: "8080"
+    targetPort: "8080"
+
+resources:
+  chatserver:
+    requests:
+      memory: "50Mi"
+      cpu: "500m"
+      ephemeral-storage:
+    limits:
+      memory: "150Mi"
+      cpu: "1000m"
+      ephemeral-storage:
+      
+labels: {}
+
+serviceDiscovery:
+  function: "chat"

@@ -1,0 +1,11 @@
+dependencies:
+- name: sd-handler
+  repository: evolgr/sd-handler
+  version: 0.0.1
+- name: sd-registry
+  repository: evolgr/sd-registry
+  version: 0.0.1
+- name: chat-server
+  repository: evolgr/chat-server
+  version: 0.0.1
+

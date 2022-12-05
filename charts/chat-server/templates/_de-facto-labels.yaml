@@ -1,0 +1,5 @@
+{{- define "chat-server.de-facto-labels" }}
+app.kubernetes.io/name: {{ template "chat-server.name" . }}
+app.kubernetes.io/version: {{ template "chat-server.version" . }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- end}}

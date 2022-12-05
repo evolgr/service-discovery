@@ -1,0 +1,20 @@
+#Copyright 2022 Intracom Tel
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.serviceregistry.name | quote }}
+  labels:
+{{- include "service-registry.labels" . | indent 4 }}
+    app: {{ .Values.service.serviceregistry.name | quote }}
+  annotations:
+{{- include "service-registry.helm-annotations" . | indent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: {{ .Values.service.serviceregistry.port }}
+    targetPort: {{ .Values.service.serviceregistry.targetPort }}
+    name: base-port
+  selector:
+    app: {{ .Values.service.serviceregistry.name | quote }}

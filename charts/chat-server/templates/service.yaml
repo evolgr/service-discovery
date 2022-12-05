@@ -1,0 +1,20 @@
+#Copyright 2022 Intracom Tel
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.chatserver.name | quote }}
+  labels:
+{{- include "chat-server.labels" . | indent 4 }}
+    app: {{ .Values.service.chatserver.name | quote }}
+  annotations:
+{{- include "chat-server.helm-annotations" . | indent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: {{ .Values.service.chatserver.port }}
+    targetPort: {{ .Values.service.chatserver.targetPort }}
+    name: base-port
+  selector:
+    app: {{ .Values.service.chatserver.name | quote }}

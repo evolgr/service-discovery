@@ -1,0 +1,20 @@
+#Copyright 2022 Intracom Tel
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.sdhandler.name | quote }}
+  labels:
+{{- include "service-discovery-handler.labels" . | indent 4 }}
+    app: {{ .Values.service.sdhandler.name | quote }}
+  annotations:
+{{- include "service-discovery-handler.helm-annotations" . | indent 4 }}
+spec:
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: {{ .Values.service.sdhandler.port }}
+    targetPort: {{ .Values.service.sdhandler.targetPort }}
+    name: base-port
+  selector:
+    app: {{ .Values.service.sdhandler.name | quote }}

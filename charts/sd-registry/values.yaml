@@ -1,0 +1,41 @@
+# service-registry configuration 
+
+# global:
+  # pullSecret: ""
+  # registry:
+    # url: ""
+    # imagePullSecret: IfNotPresent
+
+imageCredentials:
+   # pullSecret:
+  serviceregistry:
+    image:
+      name: sd-registry
+      tag: 0.0.1
+    repoPath: "evolgr"
+    registry:
+      url: "armdockerhub.rnd.ericsson.se" # overrides global registry url
+      imagePullPolicy: # overrides global image pull policy
+
+updateStrategy:
+  type: RollingUpdate
+
+service:
+  serviceregistry:
+    name: "sd-registry"
+    replicas: 1
+    port: "8080"
+    targetPort: "8080"
+
+resources:
+  serviceregistry:
+    requests:
+      memory: "50Mi"
+      cpu: "500m"
+      ephemeral-storage:
+    limits:
+      memory: "150Mi"
+      cpu: "1000m"
+      ephemeral-storage:
+      
+labels: {}

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "chat-server.name" . }}
+  labels:
+{{- include "chat-server.labels" . | indent 4 }}
+    app: {{ template "chat-server.name" . }}
+  annotations:
+{{- include "chat-server.helm-annotations" . | indent 4 }}
+spec:
+  replicas: {{ .Values.service.chatserver.replicas }}
+  strategy:
+    type: {{ .Values.updateStrategy.type | quote }}
+  selector:
+    matchLabels:
+      app: {{ template "chat-server.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "chat-server.name" . }}
+{{- include "chat-server.labels" . | indent 8 }}
+      annotations:
+{{- include "chat-server.helm-annotations" . | indent 8 }}
+    spec:
+      serviceAccountName: {{ template "chat-server.name" . }}
+      {{- if .Values.imageCredentials.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imageCredentials.pullSecret . }}
+      {{- end }}
+      containers:
+      - name: {{ template "chat-server.name" . }}
+        image: {{ .Values.imageCredentials.chatserver.registry.url }}/{{ .Values.imageCredentials.chatserver.repoPath }}/{{ .Values.imageCredentials.chatserver.image.name }}:{{ .Values.imageCredentials.chatserver.image.tag }}
+        imagePullPolicy: {{ .Values.imageCredentials.chatserver.registry.imagePullPolicy }}
+        env:
+          - name: NAMESPACE
+            value: {{ .Release.Namespace | quote }}
+          - name: INSTANCE_NAME
+            value: {{ .Release.Name | quote}} 
+          - name: TZ
+            value: {{ include "chat-server.timezone" . }}
+          - name: SERVER_FUNCTION
+            value: {{ .Values.serviceDiscovery.function | quote}}
+        resources:
+          requests:
+            cpu: {{ .Values.resources.chatserver.requests.cpu | quote }}
+            memory: {{ .Values.resources.chatserver.requests.memory | quote }}
+            {{- if index .Values.resources.chatserver.requests "ephemeral-storage" }}
+            ephemeral-storage: {{ index .Values.resources.chatserver.requests "ephemeral-storage" | quote }}
+            {{- end }}
+          limits:
+            cpu: {{ .Values.resources.chatserver.limits.cpu | quote }}
+            memory: {{ .Values.resources.chatserver.limits.memory | quote }}
+            {{- if index .Values.resources.chatserver.limits "ephemeral-storage" }}
+            ephemeral-storage: {{ index .Values.resources.chatserver.limits "ephemeral-storage" | quote }}
+            {{- end }}
+        volumeMounts:
+          - name: shared-data
+            mountPath: /etc/config
+        ports:
+        - containerPort: {{ .Values.service.chatserver.port }}
+      volumes:
+          - name: shared-data
+            emptyDir: {}

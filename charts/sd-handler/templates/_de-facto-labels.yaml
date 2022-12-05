@@ -1,0 +1,5 @@
+{{- define "service-discovery-handler.de-facto-labels" }}
+app.kubernetes.io/name: {{ template "service-discovery-handler.name" . }}
+app.kubernetes.io/version: {{ template "service-discovery-handler.version" . }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- end}}

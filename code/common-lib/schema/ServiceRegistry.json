@@ -1,0 +1,62 @@
+{
+	"title": "Service Registry",
+	"description": "Definition of Service Registry model.",
+	"definitions": {
+		"Service": {
+			"$id": "#Service",
+			"description": "Registered service of specific server function",
+			"type": "object",
+			"properties": {
+				"host": {
+					"description": "The server service hostname or ip-address.",
+					"type": "string"
+				},
+				"port": {
+					"description": "The server service port.",
+					"type": "number",
+					"minimum": 0,
+					"maximum": 65536,
+					"exclusiveMaximum": true
+				},
+				"name": {
+					"description": "The name of server service instance or pod name",
+					"type": "string"
+				},
+				"timestamp": {
+					"description": "The timestamp when the service instance modified, according to ISO8601 format: YYYY-MM-DDTHH:MM:SS.mmmmmmz (z is the relative time zone offset in hours and minutes to UTC in the format +hh:mm or -hh:mm. If UTC is used z will be 'Z' instead of '+00:00').",
+					"type": "string",
+					"format": "date-time"
+				}
+			},
+			"required": [
+				"host",
+				"port",
+				"name"
+			],
+			
+			"additionalProperties": false
+		},
+		"Services": {
+			"$id": "#Services",
+			"description": "Registered services of specific server function",
+			"type": "array",
+			"items": {
+				"$ref": "#definitions/Service"
+			}
+		}
+	},
+	"type": "object",
+	"properties": {
+		"function": {
+			"description": "The specific server function to be used by incoming service client.",
+			"type": "string"
+		},
+		"services": {
+			"$ref": "#definitions/Services"
+		}
+	},
+	"required": [
+		"function"
+	],
+	"additionalProperties": false
+}

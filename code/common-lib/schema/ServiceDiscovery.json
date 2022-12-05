@@ -1,0 +1,59 @@
+{
+    "title": "Chat Function",
+    "description": "Definition of chat function schema model.",
+    "definitions": {
+        "Request": {
+            "$id": "#Request",
+            "description": "Application request configuration",
+            "type": "object",
+            "properties": {
+                "user": {
+                    "description": "The user name.",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "The message to set, min length 1 char and max length 160 chars ",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                },
+                "timestamp": {
+                    "description": "The timestamp of when Requestthe fault indication was created, according to ISO8601 format: YYYY-MM-DDTHH:MM:SS.mmmmmmz (z is the relative time zone offset in hours and minutes to UTC in the format +hh:mm or -hh:mm. If UTC is used z will be 'Z' instead of '+00:00').",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "recipients": {
+                    "description": "User names of all recipients",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "user",
+                "message"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "type": "object",
+    "properties": {
+        "function": {
+            "description": "The function to be used by incoming request.",
+            "type": "string"
+        },
+        "requests": {
+            "description": "Requested changes.",
+            "type": "array",
+            "items": {
+                "$ref": "#definitions/Request"
+            }
+        }
+    },
+    "required": [
+        "function",
+        "connectionData"
+    ],
+    "additionalProperties": false
+}

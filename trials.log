@@ -1,0 +1,70 @@
+
+## request with wrong body
+$ curl -vvv -X GET http://10.158.166.125:8080/chat/messages -H 'Content-Type: application/json' -d '{"test":"test"}'
+*   Trying 10.158.166.125...
+* TCP_NODELAY set
+* Connected to 10.158.166.125 (10.158.166.125) port 8080 (#0)
+> GET /chat/messages HTTP/1.1
+> Host: 10.158.166.125:8080
+> User-Agent: curl/7.61.1
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 15
+> 
+* upload completely sent off: 15 out of 15 bytes
+< HTTP/1.1 400 Bad Request
+< content-length: 0
+< 
+* Connection #0 to host 10.158.166.125 left intact
+
+## request with function but invalid value
+$ curl -vvv -X GET http://10.158.166.125:8080/chat/messages -H 'Content-Type: application/json' -d '{"function":"test"}'
+*   Trying 10.158.166.125:8080...
+* Connected to 10.158.166.125 (10.158.166.125) port 8080 (#0)
+> GET /chat/messages HTTP/1.1
+> Host: 10.158.166.125:8080
+> User-Agent: curl/7.86.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 19
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 204 No Content
+< 
+* Connection #0 to host 10.158.166.125 left intact
+
+## request with valid function but no data
+$ curl -vvv -X GET http://10.158.166.125:8080/chat/messages -H 'Content-Type: application/json' -d '{"function":"chat"}'
+*   Trying 10.158.166.125:8080...
+* Connected to 10.158.166.125 (10.158.166.125) port 8080 (#0)
+> GET /chat/messages HTTP/1.1
+> Host: 10.158.166.125:8080
+> User-Agent: curl/7.86.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 19
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 400 Bad Request
+< content-length: 0
+< 
+* Connection #0 to host 10.158.166.125 left intact
+
+## request with valid function and data
+$ curl -vvv -X GET http://10.158.166.125:8080/chat/messages -H 'Content-Type: application/json' -d '{"function":"chat", "requests":[{"user": "vaggelis", "message": "crazy message", "timestamp": "2022-12-01T22:38:36.222+02:00"}]}'
+*   Trying 10.158.166.125:8080...
+* Connected to 10.158.166.125 (10.158.166.125) port 8080 (#0)
+> GET /chat/messages HTTP/1.1
+> Host: 10.158.166.125:8080
+> User-Agent: curl/7.86.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 128
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 202 Accepted
+< content-length: 136
+< 
+* Connection #0 to host 10.158.166.125 left intact
+{"id":-790098724,"user":"JohnDoe","message":"Quisque vestibulum ante vel lorem commodo porttitor.","recipient":false,"owner":"vaggelis"}
+
